@@ -1,0 +1,13 @@
+$ dotnet build C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MiniDistributedSystem\MiniDistributedSystem.slnx --ignore-failed-sources -p:NuGetAudit=false --nologo --disable-build-servers
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Submission.Api -> C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MiniDistributedSystem\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+  Submission.Client -> C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.24
+
+EXIT CODE: 0

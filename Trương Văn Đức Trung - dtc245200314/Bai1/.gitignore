@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+*.zip
+*.pid
+.DS_Store
+Thumbs.db
+.lab/
+__pycache__/

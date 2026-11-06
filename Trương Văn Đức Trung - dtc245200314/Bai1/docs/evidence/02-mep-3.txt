@@ -1,0 +1,19 @@
+$ dotnet C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MepDemo\bin\Debug\net10.0\MepDemo.dll 3
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-B] chấm xong sub-2
+   [Worker-A] chấm xong sub-1
+   [Worker-A] bắt đầu chấm sub-4
+   [Worker-B] bắt đầu chấm sub-3
+   [Worker-A] chấm xong sub-4
+   [Worker-B] chấm xong sub-3
+
+EXIT CODE: 0

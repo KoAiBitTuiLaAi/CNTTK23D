@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-11-06T08:40:26.985780+07:00",
+  "predictions": {
+    "a": "Client tu hien thi 3 bai tap, khong can sua code client vi doc mang JSON.",
+    "b": "API tat: HttpRequestException / connection refused, client ket thuc loi.",
+    "c": "StudentCode rong: API tra 400; EnsureSuccessStatusCode nem HttpRequestException.",
+    "d": "API 5050, client 5000: loi ket noi; truyen URL 5050 thi thanh cong, khong sua code."
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Bai 1 BasicWebApi breakpoint",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build BasicWebApi",
+      "program": "${workspaceFolder}/samples/BasicWebApi/src/BasicWebApi/bin/Debug/net10.0/BasicWebApi.dll",
+      "args": ["--urls", "http://localhost:5081"],
+      "cwd": "${workspaceFolder}/samples/BasicWebApi/src/BasicWebApi",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "EduSubmit API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build EduSubmit",
+      "program": "${workspaceFolder}/src/Submission.Api/bin/Debug/net10.0/Submission.Api.dll",
+      "args": ["--urls", "http://localhost:5000"],
+      "cwd": "${workspaceFolder}/src/Submission.Api",
+      "console": "internalConsole"
+    }
+  ]
+}

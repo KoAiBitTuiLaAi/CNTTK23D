@@ -1,0 +1,29 @@
+@api = http://localhost:5081
+
+### 1. 200 OK
+GET {{api}}/
+
+### 2. Route + query -> Hello, An!
+GET {{api}}/hello/An?language=en
+
+### 3. Tạo lời chào -> 201 Created, Location: /greetings/1
+# @name createGreeting
+POST {{api}}/greetings
+Content-Type: application/json
+
+{"name":"Binh","language":"vi"}
+
+### 4. Tên rỗng -> 400 Bad Request
+POST {{api}}/greetings
+Content-Type: application/json
+
+{"name":"","language":"vi"}
+
+### 5. Đọc lời chào -> 200 (chạy request 3 trước)
+GET {{api}}/greetings/{{createGreeting.response.body.$.id}}
+
+### Bước 8.5. Tiếng Nhật -> Konnichiwa, An!
+GET {{api}}/hello/An?language=ja
+
+### Tiếng Việt mặc định
+GET {{api}}/hello/An

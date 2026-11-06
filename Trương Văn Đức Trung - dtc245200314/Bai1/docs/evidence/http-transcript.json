@@ -1,0 +1,221 @@
+[
+  {
+    "method": "GET",
+    "url": "http://localhost:5081/",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"application\":\"BasicWebApi\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5081/hello/An",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"message\":\"Xin chao, An!\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5081/hello/An?language=en",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"message\":\"Hello, An!\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5081/hello/An?language=ja",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"message\":\"Konnichiwa, An!\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5081/greetings",
+    "request": {
+      "name": "Binh"
+    },
+    "status": 201,
+    "location": "/greetings/1",
+    "response": "{\"id\":1,\"name\":\"Binh\",\"message\":\"Xin chao, Binh!\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5081/greetings/1",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"id\":1,\"name\":\"Binh\",\"message\":\"Xin chao, Binh!\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5081/greetings",
+    "request": {
+      "name": ""
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"Name must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "",
+      "repositoryUrl": "x"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"Submission data must not be empty; AssignmentId must be positive.\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"service\":\"Submission.Api\",\"status\":\"running\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/assignments",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "[{\"id\":1,\"title\":\"Bai tap 1\",\"description\":\"Tao API dau tien\"},{\"id\":2,\"title\":\"Bai tap 2\",\"description\":\"Viet client goi API qua HTTP\"}]"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 201,
+    "location": "/api/submissions/cdad9fd1-f8de-4518-85cd-22c7a87d6206",
+    "response": "{\"id\":\"cdad9fd1-f8de-4518-85cd-22c7a87d6206\",\"assignmentId\":1,\"studentCode\":\"DTC245200314\",\"status\":\"received\",\"receivedAt\":\"2026-11-06T01:41:08.5901328+00:00\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/submissions/cdad9fd1-f8de-4518-85cd-22c7a87d6206",
+    "request": null,
+    "status": 200,
+    "location": null,
+    "response": "{\"id\":\"cdad9fd1-f8de-4518-85cd-22c7a87d6206\",\"assignmentId\":1,\"studentCode\":\"DTC245200314\",\"status\":\"received\",\"receivedAt\":\"2026-11-06T01:41:08.5901328+00:00\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000",
+    "request": null,
+    "status": 404,
+    "location": null,
+    "response": ""
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 0,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": -1,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 999,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"Assignment does not exist.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "  ",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": ""
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "DTC245200314"
+    },
+    "status": 400,
+    "location": null,
+    "response": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": "{\"assignmentId\":",
+    "status": 400,
+    "location": null,
+    "response": ""
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/submissions",
+    "request": {
+      "assignmentId": 1,
+      "studentCode": "DTC245200314",
+      "repositoryUrl": "https://example.com/repo.git"
+    },
+    "status": 415,
+    "location": null,
+    "response": ""
+  }
+]

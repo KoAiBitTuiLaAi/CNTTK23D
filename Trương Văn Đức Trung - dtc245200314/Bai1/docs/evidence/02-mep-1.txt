@@ -1,0 +1,11 @@
+$ dotnet C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MepDemo\bin\Debug\net10.0\MepDemo.dll 1
+
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau
+
+EXIT CODE: 0

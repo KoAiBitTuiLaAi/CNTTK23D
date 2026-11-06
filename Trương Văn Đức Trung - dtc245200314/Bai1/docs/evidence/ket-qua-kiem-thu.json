@@ -1,0 +1,347 @@
+{
+  "executedAt": "2026-11-06T08:41:08.949620+07:00",
+  "passed": 68,
+  "total": 68,
+  "checks": [
+    {
+      "name": "build-edusubmit.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\src\\Submission.Api\\Submission.Api.csproj (in 155 ms).\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\src\\Submission.Client\\Submission.Client.csproj (in 155 ms).\n  Submission.Client -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\src\\Submission.Client\\bin\\Debug\\net10.0\\Submission.Client.dll\n  Submission.Api -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\src\\Submission.Api\\bin\\Debug\\net10.0\\Submission.Api.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:05.18\n"
+    },
+    {
+      "name": "build-basic.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\BasicWebApi\\src\\BasicWebApi\\BasicWebApi.csproj (in 106 ms).\n  BasicWebApi -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\BasicWebApi\\src\\BasicWebApi\\bin\\Debug\\net10.0\\BasicWebApi.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:04.10\n"
+    },
+    {
+      "name": "build-mini.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Api\\Submission.Api.csproj (in 123 ms).\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Client\\Submission.Client.csproj (in 123 ms).\n  Submission.Client -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Client\\bin\\Debug\\net10.0\\Submission.Client.dll\n  Submission.Api -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Api\\bin\\Debug\\net10.0\\Submission.Api.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:04.82\n"
+    },
+    {
+      "name": "build-mep.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MepDemo\\MepDemo.csproj (in 106 ms).\n  MepDemo -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MepDemo\\bin\\Debug\\net10.0\\MepDemo.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:03.16\n"
+    },
+    {
+      "name": "build-hello.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  Restored C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\HelloPtudpt\\HelloPtudpt.csproj (in 138 ms).\n  HelloPtudpt -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\HelloPtudpt\\bin\\Debug\\net10.0\\HelloPtudpt.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:02.99\n"
+    },
+    {
+      "name": "01-hello.txt",
+      "passed": true,
+      "detail": "Hello, World!\n"
+    },
+    {
+      "name": "Hello World output",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "02-mep-all.txt",
+      "passed": true,
+      "detail": "\n================================================================\n1. Request–Response: gửi yêu cầu và CHỜ phản hồi\n================================================================\n   [GradingService] nhận yêu cầu chấm bài của SV001\n[Client] Nhận phản hồi: SV001: 8.5 điểm\n   [GradingService] nhận yêu cầu chấm bài của SV002\n[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau\n\n================================================================\n2. One-way: gửi đi, KHÔNG chờ kết quả nghiệp vụ\n================================================================\n[Sender] gửi log #1 và tiếp tục việc khác\n[Sender] gửi log #2 và tiếp tục việc khác\n[Sender] gửi log #3 và tiếp tục việc khác\n   [AuditLog] đã ghi: SV001 đã đăng nhập\n   [AuditLog] đã ghi: SV002 đã đăng nhập\n   [AuditLog] đã ghi: SV003 đã đăng nhập\n\n================================================================\n3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần\n================================================================\n[API] nhận sub-1 → trả ngay status = processing\n[API] nhận sub-2 → trả ngay status = processing\n[API] nhận sub-3 → trả ngay status = processing\n[API] nhận sub-4 → trả ngay status = processing\n   [Worker-A] bắt đầu chấm sub-1\n   [Worker-B] bắt đầu chấm sub-2\n   [Worker-B] chấm xong sub-2\n   [Worker-B] bắt đầu chấm sub-3\n   [Worker-A] chấm xong sub-1\n   [Worker-A] bắt đầu chấm sub-4\n   [Worker-A] chấm xong sub-4\n   [Worker-B] chấm xong sub-3\n\n================================================================\n4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký\n================================================================\n[Worker] chấm xong → phát sự kiện SubmissionGraded\n   [ScoreService] lưu điểm 8,5 cho sub-1\n   [NotificationService] báo sinh viên: sub-1 đã có điểm\n   [StatsService] cập nhật bảng thống kê\n\n================================================================\n5. Streaming / Push: nhận cập nhật liên tục\n================================================================\n[Client] cập nhật: sub-1 → received\n[Client] cập nhật: sub-1 → processing 30%\n[Client] cập nhật: sub-1 → processing 70%\n[Client] cập nhật: sub-1 → graded: 8.5\n"
+    },
+    {
+      "name": "MEP 3: moi job duoc 1 worker xu ly",
+      "passed": true,
+      "detail": "[('Worker-B', 'sub-2'), ('Worker-A', 'sub-1'), ('Worker-A', 'sub-4'), ('Worker-B', 'sub-3')]"
+    },
+    {
+      "name": "MEP 4: 1 event den ca 3 subscriber",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "MEP 5: 4 streaming updates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "02-mep-1.txt",
+      "passed": true,
+      "detail": "\n================================================================\n1. Request–Response: gửi yêu cầu và CHỜ phản hồi\n================================================================\n   [GradingService] nhận yêu cầu chấm bài của SV001\n[Client] Nhận phản hồi: SV001: 8.5 điểm\n   [GradingService] nhận yêu cầu chấm bài của SV002\n[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau\n"
+    },
+    {
+      "name": "MEP 1 runs separately",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "02-mep-3.txt",
+      "passed": true,
+      "detail": "\n================================================================\n3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần\n================================================================\n[API] nhận sub-1 → trả ngay status = processing\n[API] nhận sub-2 → trả ngay status = processing\n[API] nhận sub-3 → trả ngay status = processing\n[API] nhận sub-4 → trả ngay status = processing\n   [Worker-A] bắt đầu chấm sub-1\n   [Worker-B] bắt đầu chấm sub-2\n   [Worker-B] chấm xong sub-2\n   [Worker-A] chấm xong sub-1\n   [Worker-A] bắt đầu chấm sub-4\n   [Worker-B] bắt đầu chấm sub-3\n   [Worker-A] chấm xong sub-4\n   [Worker-B] chấm xong sub-3\n"
+    },
+    {
+      "name": "MEP 3 runs separately",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "02-mep-4.txt",
+      "passed": true,
+      "detail": "\n================================================================\n4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký\n================================================================\n[Worker] chấm xong → phát sự kiện SubmissionGraded\n   [ScoreService] lưu điểm 8,5 cho sub-1\n   [NotificationService] báo sinh viên: sub-1 đã có điểm\n   [StatsService] cập nhật bảng thống kê\n"
+    },
+    {
+      "name": "MEP 4 runs separately",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5081/ -> 200",
+      "passed": true,
+      "detail": "{\"application\":\"BasicWebApi\"}"
+    },
+    {
+      "name": "Basic application name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5081/hello/An -> 200",
+      "passed": true,
+      "detail": "{\"message\":\"Xin chao, An!\"}"
+    },
+    {
+      "name": "Basic default Vietnamese",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5081/hello/An?language=en -> 200",
+      "passed": true,
+      "detail": "{\"message\":\"Hello, An!\"}"
+    },
+    {
+      "name": "Basic English",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5081/hello/An?language=ja -> 200",
+      "passed": true,
+      "detail": "{\"message\":\"Konnichiwa, An!\"}"
+    },
+    {
+      "name": "Basic Japanese extension",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5081/greetings -> 201",
+      "passed": true,
+      "detail": "{\"id\":1,\"name\":\"Binh\",\"message\":\"Xin chao, Binh!\"}"
+    },
+    {
+      "name": "Greeting Location",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5081/greetings/1 -> 200",
+      "passed": true,
+      "detail": "{\"id\":1,\"name\":\"Binh\",\"message\":\"Xin chao, Binh!\"}"
+    },
+    {
+      "name": "Greeting readback",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5081/greetings -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"Name must not be empty.\"}"
+    },
+    {
+      "name": "Empty name error message",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "04-mini-client-1.txt",
+      "passed": true,
+      "detail": "Danh sach bai tap:\n  - 1: Bai tap 1\n  - 2: Bai tap 2\nHTTP POST: 201 Created\nDa nop bai. Ma luot nop: a6b248e2-90fe-4326-a2ce-daab35746152\nTrang thai: received\n"
+    },
+    {
+      "name": "04-mini-client-2.txt",
+      "passed": true,
+      "detail": "Danh sach bai tap:\n  - 1: Bai tap 1\n  - 2: Bai tap 2\nHTTP POST: 201 Created\nDa nop bai. Ma luot nop: 5ca5cb03-5a2b-4aa1-b142-1f49d9feda61\nTrang thai: received\n"
+    },
+    {
+      "name": "Mini: moi lan nop sinh GUID moi",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"Submission data must not be empty; AssignmentId must be positive.\"}"
+    },
+    {
+      "name": "05a-build.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  All projects are up-to-date for restore.\n  Submission.Client -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Client\\bin\\Debug\\net10.0\\Submission.Client.dll\n  Submission.Api -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Api\\bin\\Debug\\net10.0\\Submission.Api.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:04.34\n"
+    },
+    {
+      "name": "05a-client.txt",
+      "passed": true,
+      "detail": "Danh sach bai tap:\n  - 1: Bai tap 1\n  - 2: Bai tap 2\n  - 3: Bai tap 3\nHTTP POST: 201 Created\nDa nop bai. Ma luot nop: c4acd85e-f928-4439-b04f-6b80a3c6ef4e\nTrang thai: received\n"
+    },
+    {
+      "name": "Experiment a: client hien thi bai tap 3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Experiment b: API tat -> loi ket noi",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "05c-build.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  All projects are up-to-date for restore.\n  Submission.Client -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Client\\bin\\Debug\\net10.0\\Submission.Client.dll\n  Submission.Api -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Api\\bin\\Debug\\net10.0\\Submission.Api.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:04.70\n"
+    },
+    {
+      "name": "Experiment c: EnsureSuccessStatusCode -> 400",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "05-restored-build.txt",
+      "passed": true,
+      "detail": "  Determining projects to restore...\n  All projects are up-to-date for restore.\n  Submission.Api -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Api\\bin\\Debug\\net10.0\\Submission.Api.dll\n  Submission.Client -> C:\\Users\\USER\\Documents\\Codex\\2026-11-06\\https-drive-google-com-drive-folders\\outputs\\EduSubmit-DTC245200314\\samples\\MiniDistributedSystem\\src\\Submission.Client\\bin\\Debug\\net10.0\\Submission.Client.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:04.24\n"
+    },
+    {
+      "name": "Experiment d: wrong port fails",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "05d-dung-cong.txt",
+      "passed": true,
+      "detail": "Danh sach bai tap:\n  - 1: Bai tap 1\n  - 2: Bai tap 2\nHTTP POST: 201 Created\nDa nop bai. Ma luot nop: a6d47f72-9769-4f39-a11f-f2f765069e5e\nTrang thai: received\n"
+    },
+    {
+      "name": "Experiment d: URL argument fixes port",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5000/ -> 200",
+      "passed": true,
+      "detail": "{\"service\":\"Submission.Api\",\"status\":\"running\"}"
+    },
+    {
+      "name": "GET :5000/api/assignments -> 200",
+      "passed": true,
+      "detail": "[{\"id\":1,\"title\":\"Bai tap 1\",\"description\":\"Tao API dau tien\"},{\"id\":2,\"title\":\"Bai tap 2\",\"description\":\"Viet client goi API qua HTTP\"}]"
+    },
+    {
+      "name": "EduSubmit: 2 assignments",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5000/api/submissions -> 201",
+      "passed": true,
+      "detail": "{\"id\":\"cdad9fd1-f8de-4518-85cd-22c7a87d6206\",\"assignmentId\":1,\"studentCode\":\"DTC245200314\",\"status\":\"received\",\"receivedAt\":\"2026-11-06T01:41:08.5901328+00:00\"}"
+    },
+    {
+      "name": "EduSubmit: valid GUID",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "EduSubmit: status and student",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "EduSubmit: Location references new id",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "EduSubmit: receivedAt has timezone",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5000/api/submissions/cdad9fd1-f8de-4518-85cd-22c7a87d6206 -> 200",
+      "passed": true,
+      "detail": "{\"id\":\"cdad9fd1-f8de-4518-85cd-22c7a87d6206\",\"assignmentId\":1,\"studentCode\":\"DTC245200314\",\"status\":\"received\",\"receivedAt\":\"2026-11-06T01:41:08.5901328+00:00\"}"
+    },
+    {
+      "name": "Extension: GET returns saved submission",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "GET :5000/api/submissions/00000000-0000-0000-0000-000000000000 -> 404",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"Assignment does not exist.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": "{\"message\":\"AssignmentId must be positive; StudentCode and RepositoryUrl must not be empty.\"}"
+    },
+    {
+      "name": "POST :5000/api/submissions -> 400",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "POST :5000/api/submissions -> 415",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "06-edusubmit-client.txt",
+      "passed": true,
+      "detail": "Danh sach bai tap:\n  - 1: Bai tap 1\n  - 2: Bai tap 2\nPOST /api/submissions -> 201 Created\nDa nop bai. Ma luot nop: c4624348-b358-401b-8253-3f78852a022a\nTrang thai: received\nLocation: /api/submissions/c4624348-b358-401b-8253-3f78852a022a\nDoc lai: c4624348-b358-401b-8253-3f78852a022a | MSSV: DTC245200314 | Trang thai: received\n"
+    },
+    {
+      "name": "Final client reads back submission",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Experiment sources restored",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

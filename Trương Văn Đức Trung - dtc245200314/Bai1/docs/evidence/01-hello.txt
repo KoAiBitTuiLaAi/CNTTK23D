@@ -1,0 +1,4 @@
+$ dotnet C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\HelloPtudpt\bin\Debug\net10.0\HelloPtudpt.dll
+Hello, World!
+
+EXIT CODE: 0

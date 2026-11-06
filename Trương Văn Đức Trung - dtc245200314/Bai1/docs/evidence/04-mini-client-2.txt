@@ -1,0 +1,9 @@
+$ dotnet C:\Users\USER\Documents\Codex\2026-11-06\https-drive-google-com-drive-folders\outputs\EduSubmit-DTC245200314\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+HTTP POST: 201 Created
+Da nop bai. Ma luot nop: 5ca5cb03-5a2b-4aa1-b142-1f49d9feda61
+Trang thai: received
+
+EXIT CODE: 0
