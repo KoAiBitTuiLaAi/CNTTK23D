@@ -51,7 +51,3 @@ Dừng máy chủ bằng `Ctrl+C`. Dữ liệu được lưu trong bộ nhớ n�
 1. **Vì sao URI dùng danh từ, còn hành động do phương thức HTTP đảm nhận?** URI định danh tài nguyên như `assignments` và `submissions`; phương thức nói hành động, ví dụ `GET` để đọc và `POST` để tạo. Vì thế `POST /api/assignments/1/submissions` thể hiện rõ việc tạo lượt nộp thuộc bài tập 1.
 2. **“Stateless” thể hiện ở đâu?** Mỗi request tự mang thông tin cần xử lý: `assignmentId` nằm trên URI, `studentCode` và `repositoryUrl` nằm trong body. Server không dựa vào phiên client được giữ giữa các request; danh sách trong RAM chỉ là dữ liệu tài nguyên mẫu.
 3. **Vì sao client và server khai báo DTO riêng mà vẫn khớp nhau?** Hai DTO là các lớp riêng ở hai tiến trình. Chúng khớp qua hợp đồng JSON: tên trường và kiểu dữ liệu giống nhau, không cần project client tham chiếu project server.
-
-## Minh chứng
-
-Các kết quả trong nhật ký là phản hồi nhận được khi chạy lệnh thật trên máy. Ảnh chụp màn hình CMD/Terminal chưa được đính kèm trong thư mục này.
