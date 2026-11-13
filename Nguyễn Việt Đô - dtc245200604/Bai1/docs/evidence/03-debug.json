@@ -1,0 +1,32 @@
+{
+  "before": {
+    "result": "\"Binh\"",
+    "type": "string",
+    "presentationHint": {
+      "kind": "property",
+      "attributes": [
+        "canHaveObjectId",
+        "readOnly",
+        "rawString"
+      ],
+      "visibility": "public"
+    },
+    "variablesReference": 0,
+    "memoryReference": "0x000001607B86B8F8",
+    "evaluateResponseReference": 1001
+  },
+  "after": {
+    "result": "1",
+    "type": "int",
+    "presentationHint": {
+      "kind": "property",
+      "attributes": [
+        "readOnly"
+      ],
+      "visibility": "public"
+    },
+    "variablesReference": 0,
+    "memoryReference": "0x0000000000000001",
+    "evaluateResponseReference": 1001
+  }
+}

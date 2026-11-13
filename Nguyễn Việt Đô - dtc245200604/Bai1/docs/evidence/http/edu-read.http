@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: application/json; charset=utf-8
+Date: Fri, 06 Nov 2026 11:33:33 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{
+  "id": "eae5eb13-0648-4d2c-9f97-25c914de4a83",
+  "assignmentId": 1,
+  "studentCode": "DTC245200604",
+  "repositoryUrl": "https://github.com/vietdotest/EduSubmit-DTC245200604",
+  "status": "received",
+  "receivedAt": "2026-11-06T11:33:31.2850608+00:00"
+}

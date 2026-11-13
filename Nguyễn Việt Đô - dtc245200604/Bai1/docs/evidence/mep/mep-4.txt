@@ -1,0 +1,8 @@
+
+================================================================
+4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
+================================================================
+[Worker] chấm xong → phát sự kiện SubmissionGraded
+   [ScoreService] lưu điểm 8.5 cho sub-1
+   [NotificationService] báo sinh viên: sub-1 đã có điểm
+   [StatsService] cập nhật bảng thống kê

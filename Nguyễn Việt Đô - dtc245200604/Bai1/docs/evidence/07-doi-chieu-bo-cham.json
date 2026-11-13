@@ -1,0 +1,7 @@
+{
+  "chay": 4.0,
+  "mr": 1.0,
+  "api_len": true,
+  "ghi_chay": "build OK; GET / ok, GET /api/assignments ok; POST hợp lệ 201 ok, POST lỗi 400 ok; Client in đúng",
+  "ghi_mr": "GET{id} 200 ok, 404 ok, client đọc lại lượt nộp"
+}

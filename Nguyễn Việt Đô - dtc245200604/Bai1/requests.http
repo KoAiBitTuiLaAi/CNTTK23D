@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:5000
+
+### Kiểm tra API
+GET {{baseUrl}}/
+
+### Danh sách bài tập
+GET {{baseUrl}}/api/assignments
+
+### Tạo bài nộp hợp lệ
+# @name createSubmission
+POST {{baseUrl}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "DTC245200604",
+  "repositoryUrl": "https://github.com/vietdotest/EduSubmit-DTC245200604"
+}
+
+### Từ chối mã sinh viên rỗng
+POST {{baseUrl}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/vietdotest/EduSubmit-DTC245200604"
+}
+
+### Đọc lại ID nhận từ yêu cầu createSubmission
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Không tìm thấy bài nộp
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000

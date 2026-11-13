@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored C:\Code_demo\EduSubmit-DTC245200604\samples\MepDemo\MepDemo.csproj (in 128 ms).
+  MepDemo -> C:\Code_demo\EduSubmit-DTC245200604\samples\MepDemo\bin\Debug\net10.0\MepDemo.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.92
