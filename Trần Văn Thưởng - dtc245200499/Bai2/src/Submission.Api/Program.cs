@@ -58,7 +58,6 @@ app.MapGet("/api/reservations/{reservationId:guid}", (Guid reservationId) =>
         : Results.Ok(reservation);
 });
 
-
 app.Run();
 
 record BookDto(int Id, string Title, string Author, string Isbn, string Category, int AvailableCopies)
