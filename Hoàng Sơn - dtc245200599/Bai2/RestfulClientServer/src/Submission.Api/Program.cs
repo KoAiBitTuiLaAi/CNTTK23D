@@ -16,6 +16,14 @@ app.MapGet("/", () => Results.Ok(new
 
 app.MapGet("/api/assignments", () => Results.Ok(assignments));
 
+app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) =>
+{
+    var assignment = assignments.FirstOrDefault(item => item.Id == assignmentId);
+    return assignment is null
+        ? Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."))
+        : Results.Ok(assignment);
+});
+
 app.Run();
 
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
