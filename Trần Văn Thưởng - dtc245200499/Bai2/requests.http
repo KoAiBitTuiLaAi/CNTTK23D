@@ -1,0 +1,58 @@
+@api = http://localhost:5000
+
+### 1. Health check - expected 200
+GET {{api}}/
+
+### 2. Book list - expected 200 and JSON array
+GET {{api}}/api/books
+
+### 3. Search books by keyword - expected 200 and filtered JSON array
+GET {{api}}/api/books?keyword=programming
+
+### 4. Existing book detail - expected 200
+GET {{api}}/api/books/1
+
+### 5. Unknown book - expected 404 ApiError BOOK_NOT_FOUND
+GET {{api}}/api/books/999
+
+### 6. Non-integer book id - expected framework 404 with empty body
+GET {{api}}/api/books/abc
+
+### 7. Create a reservation - expected 201 and Location
+# @name createReservation
+POST {{api}}/api/books/1/reservations
+Content-Type: application/json
+
+{
+  "studentCode": "DTC245200499",
+  "studentName": "Tran Van Thuong"
+}
+
+### 8. Read the created reservation - expected 200
+GET {{api}}/api/reservations/{{createReservation.response.body.$.id}}
+
+### 9. Missing required values - expected 400 ApiError INVALID_RESERVATION
+POST {{api}}/api/books/1/reservations
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "studentName": ""
+}
+
+### 10. No available copies - expected 409 ApiError NO_COPIES_AVAILABLE
+POST {{api}}/api/books/4/reservations
+Content-Type: application/json
+
+{
+  "studentCode": "DTC245200499",
+  "studentName": "Tran Van Thuong"
+}
+
+### 11. Framework content-type handling - expected 415
+POST {{api}}/api/books/1/reservations
+
+{
+  "studentCode": "DTC245200499",
+  "studentName": "Tran Van Thuong"
+}
