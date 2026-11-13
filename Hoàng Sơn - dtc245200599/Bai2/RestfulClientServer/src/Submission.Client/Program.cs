@@ -40,7 +40,14 @@ try
     Console.WriteLine($"Da tao luot nop: {created.Id}");
     Console.WriteLine($"Trang thai ban dau: {created.Status}");
 
-    using var readResponse = await http.GetAsync($"/api/submissions/{created.Id}");
+    var location = createResponse.Headers.Location;
+    if (location is null)
+    {
+        Console.WriteLine("Phan hoi 201 khong co header Location.");
+        return;
+    }
+
+    using var readResponse = await http.GetAsync(location);
     if (!readResponse.IsSuccessStatusCode)
     {
         Console.WriteLine($"Doc lai that bai: {(int)readResponse.StatusCode} {readResponse.StatusCode}");
@@ -80,3 +87,4 @@ record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 record CreateSubmissionRequest(string StudentCode, string RepositoryUrl);
 record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, string RepositoryUrl, string Status, DateTimeOffset ReceivedAt);
 record ApiError(string Code, string Message);
+
