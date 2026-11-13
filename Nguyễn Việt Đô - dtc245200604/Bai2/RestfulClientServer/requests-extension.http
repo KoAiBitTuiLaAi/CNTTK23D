@@ -1,0 +1,36 @@
+@api = http://localhost:5000
+
+### 1. Bai tap da dong — 400 ASSIGNMENT_CLOSED (truoc truong rong)
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{"studentCode":"","repositoryUrl":""}
+
+### 2. SV002 nop bai — 201; chay lai server truoc khi chay lai toan tep
+# @name createExtension
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://github.com/vietdotest/EduSubmit-DTC245200604"}
+
+### 3. Cung SV002, khong phan biet hoa thuong — 409 DUPLICATE_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":" sv002 ","repositoryUrl":"https://github.com/vietdotest/EduSubmit-DTC245200604"}
+
+### 4. Xoa bai nop ca 2 — 204, body rong
+DELETE {{api}}/api/submissions/{{createExtension.response.body.$.id}}
+
+### 5. Xoa lai ID cu — 404 SUBMISSION_NOT_FOUND
+DELETE {{api}}/api/submissions/{{createExtension.response.body.$.id}}
+
+### 6. Nop lai sau xoa — 201, GUID moi
+# @name resubmitExtension
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://github.com/vietdotest/EduSubmit-DTC245200604"}
+
+### 7. Doc bai nop lai — 200; gui ca 6 truoc
+GET {{api}}/api/submissions/{{resubmitExtension.response.body.$.id}}
