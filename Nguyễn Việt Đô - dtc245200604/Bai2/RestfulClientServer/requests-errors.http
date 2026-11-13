@@ -1,0 +1,43 @@
+@api = http://localhost:5000
+
+### 5a. Thieu StudentCode — 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"repositoryUrl":"https://github.com/vietdotest/EduSubmit-DTC245200604"}
+
+### 5b. RepositoryUrl chi co khoang trang — 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"ERROR-SV001","repositoryUrl":"   "}
+
+### 5c. Sai kieu DTO — 400 framework
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":123,"repositoryUrl":"https://github.com/vietdotest/EduSubmit-DTC245200604"}
+
+### 5d. JSON sai cu phap — 400 framework
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+
+### 5e. Sai Content-Type — 415 framework
+POST {{api}}/api/assignments/1/submissions
+Content-Type: text/plain
+
+{"studentCode":"ERROR-SV002","repositoryUrl":"repo"}
+
+### 5f. PUT khong duoc ho tro — 405, Allow: GET
+PUT {{api}}/api/assignments/1
+
+### 5g. Route khong khop int — 404 framework, body rong
+GET {{api}}/api/assignments/abc
+
+### 5h. Assignment khong ton tai truoc kiem tra truong rong — 404 ASSIGNMENT_NOT_FOUND
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{"studentCode":"","repositoryUrl":""}
