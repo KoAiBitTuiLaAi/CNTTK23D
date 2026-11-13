@@ -22,6 +22,15 @@ app.MapGet("/", () => Results.Ok(new
 // GET /api/assignments : danh sách bài tập (Bước 3)
 app.MapGet("/api/assignments", () => Results.Ok(assignments));
 
+// GET /api/assignments/{assignmentId:int} : chi tiết một bài tập (Bước 4)
+app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) =>
+{
+    var assignment = assignments.FirstOrDefault(item => item.Id == assignmentId);
+    return assignment is null
+        ? Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."))
+        : Results.Ok(assignment);
+});
+
 // ④ Chạy
 app.Run();
 
