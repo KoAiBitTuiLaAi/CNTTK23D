@@ -1,0 +1,59 @@
+
+@api = http://localhost:5100
+
+### 1. Danh sách sản phẩm → 200
+GET {{api}}/api/products
+
+### 2. Sản phẩm không tồn tại → 404
+GET {{api}}/api/products/999
+
+### 3. Tạo sản phẩm hợp lệ → 201 Created
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 4. Tạo sản phẩm thiếu tên → 400
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "San pham loi",
+  "price": 80000
+}
+
+### 5. Tạo sản phẩm có giá âm → 400
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "Gia khong hop le",
+  "price": -1
+}
+
+### 6. Tạo sản phẩm thiếu Content-Type → 415
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Chi tiết sản phẩm tồn tại → 200
+GET {{api}}/api/products/1
+
+### 8. Kiểm tra máy chủ → 200
+GET {{api}}/
+
+### 9. Route khong khop :int -> 404, body rong
+GET {{api}}/api/products/abc
+
+### 10. Sai phuong thuc tren URI chi tiet -> 405, Allow: GET
+PUT {{api}}/api/products/1
