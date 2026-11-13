@@ -1,0 +1,33 @@
+@api = http://localhost:5100
+
+### GET / - 200
+GET {{api}}/
+
+### Danh sach - 200
+GET {{api}}/api/products
+
+### Chi tiet - 200
+GET {{api}}/api/products/1
+
+### Khong ton tai - 404
+GET {{api}}/api/products/999
+
+### Sai kieu id - 404
+GET {{api}}/api/products/abc
+
+### Tao hop le - 201
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
+
+### Gia am - 400
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "San pham loi", "description": "", "price": -1 }
+
+### Thieu Content-Type - 415
+POST {{api}}/api/products
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
