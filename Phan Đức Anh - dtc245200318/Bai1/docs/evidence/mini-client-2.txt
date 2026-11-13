@@ -1,0 +1,6 @@
+﻿Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: f52e4c58-4fa7-4cd9-a28e-36dae2f5cbb9
+Trang thai: received

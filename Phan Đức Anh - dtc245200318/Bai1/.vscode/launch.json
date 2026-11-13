@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Submission.Api",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/Submission.Api/bin/Debug/net10.0/Submission.Api.dll",
+      "cwd": "${workspaceFolder}/src/Submission.Api",
+      "args": ["--urls", "http://localhost:5000"],
+      "console": "internalConsole"
+    },
+    {
+      "name": "Debug BasicWebApi",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/samples/BasicWebApi/src/BasicWebApi/bin/Debug/net10.0/BasicWebApi.dll",
+      "cwd": "${workspaceFolder}/samples/BasicWebApi/src/BasicWebApi",
+      "args": ["--urls", "http://localhost:5081"],
+      "console": "internalConsole"
+    }
+  ]
+}

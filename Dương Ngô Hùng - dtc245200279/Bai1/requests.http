@@ -1,0 +1,44 @@
+@api = http://localhost:5000
+
+### 1. API đang chạy → 200
+GET {{api}}/
+
+### 2. Danh sách bài tập → 200
+GET {{api}}/api/assignments
+
+### 3. Nộp bài hợp lệ → 201 Created + header Location
+# @name nopBai
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "dtc245200279",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 4. Nộp bài thiếu studentCode → 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 5. assignmentId <= 0 → 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 0,
+  "studentCode": "dtc245200279",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 6. Đọc lại lượt nộp vừa tạo (chạy request 3 trước) → 200
+GET {{api}}/api/submissions/{{nopBai.response.body.id}}
+
+### 7. Lượt nộp không tồn tại → 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000

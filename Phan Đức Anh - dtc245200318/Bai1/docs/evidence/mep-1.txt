@@ -1,0 +1,8 @@
+﻿
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau

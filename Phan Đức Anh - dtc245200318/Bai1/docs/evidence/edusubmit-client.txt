@@ -1,0 +1,8 @@
+﻿Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: 21a6223a-3c3c-4031-b2f7-915c6cdd06c2
+Trang thai: received
+GET /api/submissions/21a6223a-3c3c-4031-b2f7-915c6cdd06c2 -> 200 OK
+Doc lai: 21a6223a-3c3c-4031-b2f7-915c6cdd06c2 | DTC245200318 | received

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/samples/" />
+  <Folder Name="/samples/BasicWebApi/" />
+  <Folder Name="/samples/BasicWebApi/src/">
+    <Project Path="samples/BasicWebApi/src/BasicWebApi/BasicWebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Submission.Api/Submission.Api.csproj" />
+    <Project Path="src/Submission.Client/Submission.Client.csproj" />
+  </Folder>
+</Solution>

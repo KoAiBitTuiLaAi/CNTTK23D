@@ -1,0 +1,27 @@
+@api = http://localhost:5000
+
+### Kiểm tra API đang chạy
+GET {{api}}/
+
+### Lấy danh sách bài tập
+GET {{api}}/api/assignments
+
+### Nộp bài hợp lệ → 201 Created
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "DTC245200117", "repositoryUrl": "https://github.com/tahoanganh222222-hash/CNTTK23D" }
+
+### Nộp bài thiếu studentCode → 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://example.com/x" }
+
+### Đọc lại lượt nộp vừa tạo → 200 OK
+# Chạy request createSubmission ở trên trước để lấy ID.
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Đọc lượt nộp không tồn tại → 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000

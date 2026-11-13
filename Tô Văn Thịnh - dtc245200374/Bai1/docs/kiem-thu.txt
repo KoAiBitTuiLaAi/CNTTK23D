@@ -1,0 +1,14 @@
+Kiem thu EduSubmit tren cong 5097
+GET /: 200
+GET assignments: 200
+POST valid: 201
+GET created: 200
+POST invalid: 400
+GET unknown: 404
+Danh sach bai tap:
+- 1: Bai tap 1
+- 2: Bai tap 2
+Da nop bai. Ma luot nop: 8df3b079-b261-4853-b558-3476d4e719d1
+Trang thai: received
+Doc lai luot nop: 8df3b079-b261-4853-b558-3476d4e719d1
+Trang thai doc lai: received

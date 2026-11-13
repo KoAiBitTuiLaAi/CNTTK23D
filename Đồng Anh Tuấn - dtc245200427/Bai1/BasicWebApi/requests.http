@@ -1,0 +1,32 @@
+@api = http://localhost:5081
+
+### Health
+GET {{api}}/
+
+### Route parameter and default language
+GET {{api}}/hello/An
+
+### Query string language
+GET {{api}}/hello/An?language=en
+
+### Japanese language extension
+GET {{api}}/hello/An?language=ja
+
+### Create greeting: 201 Created
+POST {{api}}/greetings
+Content-Type: application/json
+
+{
+  "name": "Binh"
+}
+
+### Empty name: 400 Bad Request
+POST {{api}}/greetings
+Content-Type: application/json
+
+{
+  "name": ""
+}
+
+### Read created greeting: replace ID with the value returned above
+GET {{api}}/greetings/1

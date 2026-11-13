@@ -1,0 +1,25 @@
+@api = http://localhost:5081
+
+### Kiểm tra API đang chạy → 200
+GET {{api}}/
+
+### Chào tiếng Việt (mặc định) → 200
+GET {{api}}/hello/An?language=vi
+
+### Chào tiếng Anh → 200
+GET {{api}}/hello/An?language=en
+
+### Tạo lời chào hợp lệ → 201 Created + header Location
+POST {{api}}/greetings
+Content-Type: application/json
+
+{ "name": "Binh" }
+
+### Tên rỗng → 400 Bad Request
+POST {{api}}/greetings
+Content-Type: application/json
+
+{ "name": "" }
+
+### Chao tieng Nhat - 200
+GET {{api}}/hello/An?language=ja

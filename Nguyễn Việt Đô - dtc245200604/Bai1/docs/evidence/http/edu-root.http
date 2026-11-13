@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: application/json; charset=utf-8
+Date: Fri, 06 Nov 2026 11:33:27 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{
+  "service": "Submission.Api",
+  "status": "running"
+}

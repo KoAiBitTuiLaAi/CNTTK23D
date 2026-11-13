@@ -1,0 +1,46 @@
+### Kiểm tra trạng thái API
+GET http://localhost:5000/
+Accept: application/json
+
+###
+
+### Lấy danh sách bài tập
+GET http://localhost:5000/api/assignments
+Accept: application/json
+
+###
+
+### Gửi bài nộp hợp lệ - kỳ vọng 201 Created
+POST http://localhost:5000/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "dtc245200551",
+  "repositoryUrl": "https://github.com/dtc245200551"
+}
+
+###
+
+### Gửi bài nộp không hợp lệ - kỳ vọng 400 Bad Request
+POST http://localhost:5000/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/dtc245200551"
+}
+
+###
+
+### Tra cứu bài nộp
+# Thay GUID bên dưới bằng id thật nhận được từ phản hồi POST.
+GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+###
+
+### Tra cứu GUID không tồn tại - kỳ vọng 404 Not Found
+GET http://localhost:5000/api/submissions/11111111-1111-1111-1111-111111111111
+Accept: application/json

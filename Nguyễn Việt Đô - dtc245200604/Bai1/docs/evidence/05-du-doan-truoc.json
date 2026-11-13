@@ -1,0 +1,6 @@
+{
+  "a": "API them bai thu ba: Client se doc du ba bai, khong sua Client.",
+  "b": "Tat API: ket noi bi tu choi, HttpRequestException/SocketException 10061, khong co HTTP response.",
+  "c": "StudentCode rong: POST tra 400 va EnsureSuccessStatusCode nem ngoai le.",
+  "d": "API o 5050/Client 5000 bi loi; truyen URL 5050 thi thanh cong, khong sua code."
+}

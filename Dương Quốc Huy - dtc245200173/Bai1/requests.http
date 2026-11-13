@@ -1,0 +1,34 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra API dang chay - 200
+GET {{api}}/
+
+### 2. Lay danh sach bai tap - 200
+GET {{api}}/api/assignments
+
+### 3. Tao luot nop hop le - 201
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "dtc245200173",
+  "repositoryUrl": "https://github.com/Huiiii26/CNTTK23D"
+}
+
+### 4. Tao luot nop khong hop le - 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 0,
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 5. Doc lai luot nop vua tao - 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6. Doc luot nop khong ton tai - 404
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000

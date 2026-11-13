@@ -1,0 +1,5 @@
+﻿Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 400 Bad Request
+HttpRequestException: Response status code does not indicate success: 400 (Bad Request).

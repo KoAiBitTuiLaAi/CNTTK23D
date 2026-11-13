@@ -1,0 +1,33 @@
+@api = http://localhost:5000
+
+### 200 - API status
+GET {{api}}/
+
+### 200 - Assignments
+GET {{api}}/api/assignments
+
+### 201 - Create submission
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{"assignmentId":1,"studentCode":"DTC245200405","repositoryUrl":"https://github.com/stickman006/CNTTK23D"}
+
+### 400 - Empty student code
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{"assignmentId":1,"studentCode":"","repositoryUrl":"https://github.com/stickman006/CNTTK23D"}
+
+### 400 - Invalid assignment ID
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{"assignmentId":0,"studentCode":"DTC245200405","repositoryUrl":"https://github.com/stickman006/CNTTK23D"}
+
+### 200 - Run the named createSubmission request first
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 404 - Unknown submission
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+

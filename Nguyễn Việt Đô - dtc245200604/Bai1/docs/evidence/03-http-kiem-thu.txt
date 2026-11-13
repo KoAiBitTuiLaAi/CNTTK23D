@@ -1,0 +1,7 @@
+GET / 200 {"application":"BasicWebApi","message":"ASP.NET Core Web API is running."}
+GET /hello/An?language=en 200 {"message":"Hello, An!"}
+GET /hello/An?language=vi 200 {"message":"Xin chào, An!"}
+POST /greetings 201 {"id":1,"name":"Binh","createdAt":"2026-11-06T11:30:10.2492724+00:00"}
+POST /greetings 400 {"message":"Name must not be empty."}
+GET /hello/An?language=ja 200 {"message":"Konnichiwa, An!"}
+PASS BasicWebApi: root/vi/en/ja/201/400

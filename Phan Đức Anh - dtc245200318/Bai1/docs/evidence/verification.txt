@@ -1,0 +1,263 @@
+﻿Bai 1 - 2026-11-06T09:17:17.9022725+07:00
+SDK: 10.0.403
+Git: git version 2.56.0.windows.4
+dotnet run --project D:\Chat GPT\EduSubmit-DTC245200318\.experiments\HelloPtudpt -p:NuGetAudit=false -p:RestoreIgnoreFailedSources=true -> exit 0
+Hello, World!
+PASS: Exit code = 0 (environment.txt)
+PASS: Console Hello, World!
+dotnet run --no-build --project samples/MepDemo -> exit 0
+
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau
+
+================================================================
+2. One-way: gửi đi, KHÔNG chờ kết quả nghiệp vụ
+================================================================
+[Sender] gửi log #1 và tiếp tục việc khác
+[Sender] gửi log #2 và tiếp tục việc khác
+[Sender] gửi log #3 và tiếp tục việc khác
+   [AuditLog] đã ghi: SV001 đã đăng nhập
+   [AuditLog] đã ghi: SV002 đã đăng nhập
+   [AuditLog] đã ghi: SV003 đã đăng nhập
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-B] chấm xong sub-2
+   [Worker-B] bắt đầu chấm sub-3
+   [Worker-A] chấm xong sub-1
+   [Worker-A] bắt đầu chấm sub-4
+   [Worker-B] chấm xong sub-3
+   [Worker-A] chấm xong sub-4
+
+================================================================
+4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
+================================================================
+[Worker] chấm xong → phát sự kiện SubmissionGraded
+   [ScoreService] lưu điểm 8.5 cho sub-1
+   [NotificationService] báo sinh viên: sub-1 đã có điểm
+   [StatsService] cập nhật bảng thống kê
+
+================================================================
+5. Streaming / Push: nhận cập nhật liên tục
+================================================================
+[Client] cập nhật: sub-1 → received
+[Client] cập nhật: sub-1 → processing 30%
+[Client] cập nhật: sub-1 → processing 70%
+[Client] cập nhật: sub-1 → graded: 8.5
+PASS: Exit code = 0 (mep-all.txt)
+dotnet run --no-build --project samples/MepDemo -- 1 -> exit 0
+
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau
+PASS: Exit code = 0 (mep-1.txt)
+dotnet run --no-build --project samples/MepDemo -- 3 -> exit 0
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-B] chấm xong sub-2
+   [Worker-A] chấm xong sub-1
+   [Worker-B] bắt đầu chấm sub-3
+   [Worker-A] bắt đầu chấm sub-4
+   [Worker-A] chấm xong sub-4
+   [Worker-B] chấm xong sub-3
+PASS: Exit code = 0 (mep-3.txt)
+dotnet run --no-build --project samples/MepDemo -- 4 -> exit 0
+
+================================================================
+4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
+================================================================
+[Worker] chấm xong → phát sự kiện SubmissionGraded
+   [ScoreService] lưu điểm 8.5 cho sub-1
+   [NotificationService] báo sinh viên: sub-1 đã có điểm
+   [StatsService] cập nhật bảng thống kê
+PASS: Exit code = 0 (mep-4.txt)
+PASS: Queue: sub-1 completed by exactly one worker
+PASS: Queue: sub-2 completed by exactly one worker
+PASS: Queue: sub-3 completed by exactly one worker
+PASS: Queue: sub-4 completed by exactly one worker
+PASS: Pub/sub delivered to ScoreService
+PASS: Pub/sub delivered to NotificationService
+PASS: Pub/sub delivered to StatsService
+API basic listening on http://localhost:5081 (PID 10932)
+GET http://localhost:5081/ -> 200 OK
+{"application":"BasicWebApi"}
+PASS: Basic root 200
+GET http://localhost:5081/hello/An -> 200 OK
+{"message":"Xin chao, An!"}
+PASS: Greeting Xin chao, An!
+GET http://localhost:5081/hello/An?language=en -> 200 OK
+{"message":"Hello, An!"}
+PASS: Greeting Hello, An!
+GET http://localhost:5081/hello/An?language=ja -> 200 OK
+{"message":"Konnichiwa, An!"}
+PASS: Greeting Konnichiwa, An!
+POST http://localhost:5081/greetings -> 201 Created
+Location: /greetings/1
+{"id":1,"name":"Binh","message":"Xin chao, Binh!"}
+PASS: Basic POST 201 + Location
+POST http://localhost:5081/greetings -> 400 Bad Request
+{"message":"Name must not be empty."}
+PASS: Basic empty name 400
+API mini listening on http://localhost:5000 (PID 27652)
+GET http://localhost:5000/ -> 200 OK
+{"service":"Submission.Api","status":"running"}
+PASS: Mini root 200
+GET http://localhost:5000/api/assignments -> 200 OK
+[{"id":1,"title":"Bai tap 1","description":"Tao API dau tien"},{"id":2,"title":"Bai tap 2","description":"Viet client giao tiep qua HTTP"}]
+PASS: Mini two assignments
+POST http://localhost:5000/api/submissions -> 201 Created
+Location: /api/submissions/092e5831-83c4-4ef8-84ec-d9788a024e79
+{"id":"092e5831-83c4-4ef8-84ec-d9788a024e79","assignmentId":1,"studentCode":"SV001","status":"received","receivedAt":"2026-11-06T02:17:32.7498317+00:00"}
+PASS: Mini valid POST 201
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"Invalid submission data."}
+PASS: Mini invalid POST 400
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 0
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: 083a0577-6203-480d-9e9e-a21e12512dcd
+Trang thai: received
+PASS: Exit code = 0 (mini-client-1.txt)
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 0
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: f52e4c58-4fa7-4cd9-a28e-36dae2f5cbb9
+Trang thai: received
+PASS: Exit code = 0 (mini-client-2.txt)
+PASS: Repeated submissions receive different GUIDs
+Experiment c prediction: API returns 400; EnsureSuccessStatusCode throws HttpRequestException.
+dotnet build D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client -p:NuGetAudit=false -m:1 -p:UseSharedCompilation=false -> exit 0
+  Determining projects to restore...
+  Restored D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client\Submission.Client.csproj (in 145 ms).
+  Submission.Client -> D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.55
+PASS: Exit code = 0 (experiment-c-build.txt)
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 1
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 400 Bad Request
+HttpRequestException: Response status code does not indicate success: 400 (Bad Request).
+PASS: Exit code = 1 (experiment-c.txt)
+PASS: Experiment c: 400 triggers EnsureSuccessStatusCode
+Experiment b prediction: API stopped; client fails with connection refused.
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 1
+HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:5000)
+PASS: Exit code = 1 (experiment-b.txt)
+PASS: Experiment b: offline API fails
+Experiment a prediction: unchanged client displays three assignments after server data changes.
+dotnet build D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Api -p:NuGetAudit=false -m:1 -p:UseSharedCompilation=false -> exit 0
+  Determining projects to restore...
+  Restored D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Api\Submission.Api.csproj (in 204 ms).
+  Submission.Api -> D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.26
+PASS: Exit code = 0 (experiment-a-build.txt)
+API experiment-a listening on http://localhost:5000 (PID 6460)
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 0
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+  - 3: Bai tap 3
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: 6cc18ef0-db90-4fdc-b673-ead03ab42a10
+Trang thai: received
+PASS: Exit code = 0 (experiment-a.txt)
+PASS: Experiment a: client unchanged displays assignment 3
+Experiment d prediction: port 5000 fails; passing port 5050 succeeds without source edits.
+API experiment-d listening on http://localhost:5050 (PID 2616)
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 1
+HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:5000)
+PASS: Exit code = 1 (experiment-d-wrong-port.txt)
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\samples\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5050 -> exit 0
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: c4b5c8c1-04d5-4e8f-af55-6a74ffab7d44
+Trang thai: received
+PASS: Exit code = 0 (experiment-d-correct-port.txt)
+PASS: Experiment d: URL argument fixes port mismatch
+API edusubmit listening on http://localhost:5000 (PID 22128)
+GET http://localhost:5000/ -> 200 OK
+{"service":"Submission.Api","status":"running"}
+PASS: EduSubmit health 200
+GET http://localhost:5000/api/assignments -> 200 OK
+[{"id":1,"title":"Bai tap 1","description":"Tao API dau tien"},{"id":2,"title":"Bai tap 2","description":"Viet client giao tiep qua HTTP"}]
+PASS: EduSubmit assignments 200
+POST http://localhost:5000/api/submissions -> 201 Created
+Location: /api/submissions/b413cacd-cd38-4868-8d77-4167cb9ee0c8
+{"id":"b413cacd-cd38-4868-8d77-4167cb9ee0c8","assignmentId":1,"studentCode":"DTC245200318","status":"received","receivedAt":"2026-11-06T02:17:54.9694707+00:00"}
+PASS: EduSubmit 201, GUID, status, timestamp and Location
+GET http://localhost:5000/api/submissions/b413cacd-cd38-4868-8d77-4167cb9ee0c8 -> 200 OK
+{"id":"b413cacd-cd38-4868-8d77-4167cb9ee0c8","assignmentId":1,"studentCode":"DTC245200318","status":"received","receivedAt":"2026-11-06T02:17:54.9694707+00:00"}
+PASS: Read created submission 200
+GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000 -> 404 Not Found
+PASS: Unknown GUID 404
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {}
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {"assignmentId":0,"studentCode":"DTC245200318","repositoryUrl":"x"}
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {"assignmentId":-1,"studentCode":"DTC245200318","repositoryUrl":"x"}
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {"assignmentId":1,"studentCode":" ","repositoryUrl":"x"}
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {"assignmentId":1,"studentCode":"DTC245200318"}
+POST http://localhost:5000/api/submissions -> 400 Bad Request
+{"message":"AssignmentId must be positive. StudentCode and RepositoryUrl must not be empty."}
+PASS: Reject invalid data 400: {"assignmentId":1,"studentCode":"DTC245200318","repositoryUrl":" "}
+dotnet D:\Chat GPT\EduSubmit-DTC245200318\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll http://localhost:5000 -> exit 0
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: 21a6223a-3c3c-4031-b2f7-915c6cdd06c2
+Trang thai: received
+GET /api/submissions/21a6223a-3c3c-4031-b2f7-915c6cdd06c2 -> 200 OK
+Doc lai: 21a6223a-3c3c-4031-b2f7-915c6cdd06c2 | DTC245200318 | received
+PASS: Exit code = 0 (edusubmit-client.txt)
+PASS: EduSubmit client submits and reads back
+ALL 50 CHECKS PASSED

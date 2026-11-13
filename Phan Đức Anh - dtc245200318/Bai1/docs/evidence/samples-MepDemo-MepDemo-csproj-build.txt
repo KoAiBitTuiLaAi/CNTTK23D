@@ -1,0 +1,9 @@
+﻿  Determining projects to restore...
+  Restored D:\Chat GPT\EduSubmit-DTC245200318\samples\MepDemo\MepDemo.csproj (in 87 ms).
+  MepDemo -> D:\Chat GPT\EduSubmit-DTC245200318\samples\MepDemo\bin\Debug\net10.0\MepDemo.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.05

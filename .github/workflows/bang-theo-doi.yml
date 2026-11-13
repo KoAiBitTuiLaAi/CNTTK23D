@@ -7,7 +7,7 @@
 name: Bang theo doi nop bai
 on:
   schedule:
-    - cron: "5 17 6 11 *"
+    - cron: "5 17 11 11 *"
   workflow_dispatch:
     inputs:
       chay_thu:
@@ -22,7 +22,7 @@ concurrency:
 env:
   BAI: "1"
   DUNG_HAN: "2026-11-06 12:00"
-  HAN_CHOT: "2026-11-06 23:59"
+  HAN_CHOT: "2026-11-11 23:59"
 jobs:
   # Job 1: CHẠY CODE CỦA SV -> quyền chỉ-đọc, không lưu token, không dùng secret.
   # Kết quả chỉ là 1 file JSON số điểm + ghi chú, chuyển sang job 2.

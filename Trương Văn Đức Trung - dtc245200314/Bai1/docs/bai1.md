@@ -14,11 +14,25 @@ Máy có .NET SDK `10.0.403`, đồng thời có bản `10.0.103`; Git `2.56.0.w
 
 Đã biên dịch và chạy `samples/HelloPtudpt`; kết quả là `Hello, World!`. Các project dùng `net10.0` và các thư viện đi kèm SDK, không có package NuGet ngoài.
 
-![Bản ghi kiểm tra môi trường và Hello World](evidence/01-moi-truong.png)
+```text
+$ dotnet --version
+10.0.403
+
+$ dotnet --list-sdks
+10.0.103 [C:\Program Files\dotnet\sdk]
+10.0.403 [C:\Program Files\dotnet\sdk]
+
+$ git --version
+git version 2.56.0.windows.2
+
+Hello, World!
+
+EXIT CODE: 0
+```
 
 [Log môi trường](evidence/00-moi-truong.txt) · [Log Hello World](evidence/01-hello.txt)
 
-Các hình minh chứng thực hành ở mục 1–6 được tạo từ log chạy thật để đọc kết quả thuận tiện; đây là ảnh trình bày bản ghi, không phải ảnh chụp thao tác trong VS Code hoặc REST Client. Mục 9 dùng ảnh chụp trực tiếp từ GitHub.
+Kết quả thực hành được ghi trực tiếp bằng văn bản, bảng và các khối kết quả chạy trong nhật ký. Các tệp log và JSON trong `docs/evidence/` giữ lại dữ liệu kiểm chứng chi tiết.
 
 ## 2. MepDemo Bước 7
 
@@ -36,7 +50,59 @@ Các hình minh chứng thực hành ở mục 1–6 được tạo từ log ch�
 | Publish–subscribe | Một sự kiện được phân phối đến nhiều subscriber độc lập. |
 | Streaming hoặc push | Client nhận nhiều cập nhật liên tiếp trong một luồng. |
 
-![Bản ghi năm MEP](evidence/02-mep.png)
+```text
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau
+
+================================================================
+2. One-way: gửi đi, KHÔNG chờ kết quả nghiệp vụ
+================================================================
+[Sender] gửi log #1 và tiếp tục việc khác
+[Sender] gửi log #2 và tiếp tục việc khác
+[Sender] gửi log #3 và tiếp tục việc khác
+   [AuditLog] đã ghi: SV001 đã đăng nhập
+   [AuditLog] đã ghi: SV002 đã đăng nhập
+   [AuditLog] đã ghi: SV003 đã đăng nhập
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-B] chấm xong sub-2
+   [Worker-B] bắt đầu chấm sub-3
+   [Worker-A] chấm xong sub-1
+   [Worker-A] bắt đầu chấm sub-4
+   [Worker-A] chấm xong sub-4
+   [Worker-B] chấm xong sub-3
+
+================================================================
+4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
+================================================================
+[Worker] chấm xong → phát sự kiện SubmissionGraded
+   [ScoreService] lưu điểm 8,5 cho sub-1
+   [NotificationService] báo sinh viên: sub-1 đã có điểm
+   [StatsService] cập nhật bảng thống kê
+
+================================================================
+5. Streaming / Push: nhận cập nhật liên tục
+================================================================
+[Client] cập nhật: sub-1 → received
+[Client] cập nhật: sub-1 → processing 30%
+[Client] cập nhật: sub-1 → processing 70%
+[Client] cập nhật: sub-1 → graded: 8.5
+
+EXIT CODE: 0
+```
 
 [Log toàn bộ MEP](evidence/02-mep-all.txt)
 
@@ -62,7 +128,38 @@ Các hình minh chứng thực hành ở mục 1–6 được tạo từ log ch�
 - `name` lấy từ route segment `{name}`; `language` lấy từ query string sau dấu `?`.
 - POST hợp lệ tạo tài nguyên mới nên trả `201 Created`, kèm `Location` để chỉ địa chỉ tài nguyên. `200 OK` thường dùng khi đọc dữ liệu hoặc thực hiện thành công một thao tác không biểu thị việc tạo mới.
 
-![Bản ghi phản hồi HTTP của BasicWebApi](evidence/03-basic-http.png)
+```text
+GET http://localhost:5081/
+HTTP 200
+{"application":"BasicWebApi"}
+
+GET http://localhost:5081/hello/An
+HTTP 200
+{"message":"Xin chao, An!"}
+
+GET http://localhost:5081/hello/An?language=en
+HTTP 200
+{"message":"Hello, An!"}
+
+GET http://localhost:5081/hello/An?language=ja
+HTTP 200
+{"message":"Konnichiwa, An!"}
+
+POST http://localhost:5081/greetings
+Body: {"name": "Binh"}
+HTTP 201
+Location: /greetings/1
+{"id":1,"name":"Binh","message":"Xin chao, Binh!"}
+
+GET http://localhost:5081/greetings/1
+HTTP 200
+{"id":1,"name":"Binh","message":"Xin chao, Binh!"}
+
+POST http://localhost:5081/greetings
+Body: {"name": ""}
+HTTP 400
+{"message":"Name must not be empty."}
+```
 
 Đã chuẩn bị cấu hình debug trong `.vscode/launch.json`. Vị trí breakpoint là `var greeting = service.Create(...)` trong `samples/BasicWebApi/src/BasicWebApi/Program.cs`; hướng dẫn thao tác nằm trong README của mẫu.
 
@@ -70,7 +167,27 @@ Các hình minh chứng thực hành ở mục 1–6 được tạo từ log ch�
 
 Đã chạy API và Client ở hai tiến trình độc lập, API nghe cổng 5000. Client in hai bài tập, GUID mới và `Trang thai: received`. Chạy client hai lần sinh hai GUID khác nhau.
 
-![Bản ghi API và hai lần chạy Client](evidence/04-mini.png)
+```text
+LẦN CHẠY CLIENT 1
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+HTTP POST: 201 Created
+Da nop bai. Ma luot nop: a6b248e2-90fe-4326-a2ce-daab35746152
+Trang thai: received
+
+EXIT CODE: 0
+
+LẦN CHẠY CLIENT 2
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+HTTP POST: 201 Created
+Da nop bai. Ma luot nop: 5ca5cb03-5a2b-4aa1-b142-1f49d9feda61
+Trang thai: received
+
+EXIT CODE: 0
+```
 
 **Client gọi những endpoint nào?**
 
@@ -124,7 +241,18 @@ Client <-- 200 + lượt nộp đã lưu ----------- API
 
 Tất cả các lần gọi trên dùng request–response. `async/await` giúp chờ I/O mà không biến luồng này thành queue hoặc publish–subscribe.
 
-![Bản ghi chạy bài chính và đọc lại lượt nộp](evidence/06-edusubmit.png)
+```text
+Danh sach bai tap:
+  - 1: Bai tap 1
+  - 2: Bai tap 2
+POST /api/submissions -> 201 Created
+Da nop bai. Ma luot nop: c4624348-b358-401b-8253-3f78852a022a
+Trang thai: received
+Location: /api/submissions/c4624348-b358-401b-8253-3f78852a022a
+Doc lai: c4624348-b358-401b-8253-3f78852a022a | MSSV: DTC245200314 | Trang thai: received
+
+EXIT CODE: 0
+```
 
 **Kiểm thử thực tế:** 68/68 kiểm tra đạt, gồm biên dịch các project, MEP, BasicWebApi, hai tiến trình MiniDistributedSystem, bốn thí nghiệm và API/Client chính. Đã kiểm tra thêm JSON hỏng trả 400, Content-Type không phù hợp trả 415, GUID và thời điểm hợp lệ, Location đúng, đọc lại đúng và id không tồn tại trả 404.
 
@@ -156,25 +284,33 @@ Tất cả các lần gọi trên dùng request–response. `async/await` giúp 
 
 Theo thông báo nộp bài mới của lớp, bài được nộp bằng Fork và Pull Request. Repository fork là https://github.com/dtc245200314-del/CNTTK23D, bài nằm trong `Trương Văn Đức Trung - dtc245200314/Bai1/`.
 
-Đã đẩy mã nguồn và `docs/bai1.md` lên GitHub, cùng tag `bai1`. Tag đánh dấu phiên bản mã và nhật ký đã kiểm thử; ảnh chụp xác nhận nộp bài được bổ sung trong commit sau đó. Toàn bộ thay đổi chỉ nằm trong thư mục sinh viên, không bao gồm `bin`, `obj`.
+### Kết quả nộp bài
 
-**PR nộp bài:** https://github.com/PTUDPTK23/CNTTK23D/pull/2  
-**Tiêu đề:** Bai1 - dtc245200314 - Trương Văn Đức Trung  
-**Thời điểm mở PR:** 08:55:12 ngày 06/11/2026, giờ Việt Nam.  
-**Trạng thái đã xác nhận:** Open, hệ thống lớp gắn nhãn **Đúng hạn**. PR đang chờ giảng viên xem xét; chưa có điểm chính thức.
+| Nội dung cần kiểm tra | Kết quả đã xác nhận |
+|---|---|
+| Mã nguồn API | Có `src/Submission.Api/Submission.Api.csproj` và `Program.cs`. |
+| Mã nguồn Client | Có `src/Submission.Client/Submission.Client.csproj` và `Program.cs`. |
+| Solution | Có `EduSubmit.slnx`, gồm hai project chính. |
+| Nhật ký | Có `docs/bai1.md`, ghi kết quả chạy, trả lời câu hỏi và bốn thí nghiệm bằng văn bản. |
+| Kiểm thử | Có `requests.http` và bản ghi 68/68 kiểm tra đạt trong `docs/evidence/`. |
+| Phần mở rộng | Lưu lượt nộp, GET id có thật trả 200, id không tồn tại trả 404; Client đọc lại lượt nộp. |
+| Tag Git | Đã đẩy tag `bai1` lên bản fork; tag được cập nhật cho phiên bản nhật ký bằng văn bản. |
+| Thư mục bài nộp | Các thay đổi nằm trong `Trương Văn Đức Trung - dtc245200314/Bai1/`. |
+| Tệp build | `bin` và `obj` được loại khỏi bài nộp bằng `.gitignore`. |
 
-Ảnh chụp trực tiếp trang mã nguồn trên nhánh `main`:
+### Thông tin Pull Request
 
-![GitHub có mã nguồn và thư mục docs](evidence/07-github-code.jpg)
+- **PR nộp ban đầu:** https://github.com/PTUDPTK23/CNTTK23D/pull/2
+- **Tiêu đề:** Bai1 - dtc245200314 - Trương Văn Đức Trung
+- **Thời điểm mở PR:** 08:55:12 ngày 06/11/2026, giờ Việt Nam.
+- **Nhãn đã xác nhận:** Đúng hạn.
+- **Thời điểm PR được gộp:** 09:00:52 ngày 06/11/2026, giờ Việt Nam.
 
-Ảnh chụp thư mục `docs` có `bai1.md` và thư mục minh chứng:
+Bản chỉnh sửa này trình bày các minh chứng trực tiếp trong Markdown và giữ lại log gốc để đối chiếu. Vì PR nộp ban đầu đã được gộp, thay đổi được gửi bằng PR bổ sung trong cùng thư mục sinh viên. Kết quả chấm chính thức do giảng viên xác nhận.
 
-![GitHub có nhật ký bai1.md](evidence/10-github-docs.jpg)
+### Cách kiểm tra trên GitHub
 
-Ảnh chụp trang Tags có `bai1`:
-
-![Tag bai1 đã có trên GitHub](evidence/08-github-tag.jpg)
-
-Ảnh chụp PR đã mở và nhãn xác nhận đúng hạn:
-
-![Pull Request nộp Bài 1](evidence/09-github-pr.jpg)
+1. Mở bản fork và vào `Trương Văn Đức Trung - dtc245200314/Bai1/` để xem mã nguồn.
+2. Mở `docs/bai1.md` để đọc nhật ký và kết quả thực hành bằng văn bản.
+3. Mở trang https://github.com/dtc245200314-del/CNTTK23D/tags để kiểm tra tag `bai1`.
+4. Mở PR tương ứng trong kho lớp để xem nội dung thay đổi và trạng thái tiếp nhận.

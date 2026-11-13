@@ -22,6 +22,52 @@ Thư mục nộp bài tập và đồ án của sinh viên lớp **Phát triển
 3. **Tạo Pull Request:** ở trang fork, bấm **Contribute → Open pull request**. Tiêu đề PR **bắt buộc** theo mẫu: `Bai1 - dtc2452xxxxx - Nguyễn Văn A` (bài 2 thì `Bai2 - ...`). Bấm **Create pull request** là xong.
 4. **Sửa / bổ sung bài:** không tạo PR mới, chỉ cần commit thêm vào fork, PR cũ tự cập nhật. Trước khi làm bài mới, bấm **Sync fork** để fork có nội dung mới nhất.
 
+### Ví dụ: tạo thư mục bài và dự án
+
+Giả sử sinh viên **Nguyễn Văn A – dtc245200xxx**. Trong thư mục của mình, mỗi bài/dự án là một thư mục con:
+
+```
+Nguyễn Văn A - dtc245200xxx/
+├── Bai1/
+│   ├── README.md
+│   └── (mã nguồn, báo cáo ...)
+├── Bai2/
+│   └── ...
+└── DuAn/
+    └── ...
+```
+
+Tạo thư mục và nộp bằng git:
+
+```bash
+cd "Nguyễn Văn A - dtc245200xxx"
+mkdir Bai2          # dự án thì: mkdir DuAn
+# chép bài vào Bai2/
+git add .
+git commit -m "Bai2 - dtc245200xxx - Nguyễn Văn A"
+git push
+```
+
+Sau đó mở Pull Request với tiêu đề `Bai2 - dtc245200xxx - Nguyễn Văn A`.
+
+### Cập nhật fork bằng git pull (trước khi làm bài mới)
+
+Chỉ làm một lần, để máy biết repo gốc của lớp:
+
+```bash
+git remote add upstream https://github.com/PTUDPTK23/CNTTK23D.git
+```
+
+Mỗi lần trước khi làm bài mới:
+
+```bash
+git checkout main
+git pull upstream main    # lấy nội dung mới nhất từ repo của lớp
+git push origin main      # đẩy bản đã cập nhật lên fork của bạn
+```
+
+Nếu làm trên web thì bấm **Sync fork → Update branch** ở trang fork.
+
 ### Quy định
 - Chỉ thêm/sửa file **trong thư mục của chính mình**. PR sửa thư mục của bạn khác hoặc file chung (README, .github, ...) sẽ bị từ chối.
 - Hệ thống tự gắn nhãn theo thời điểm mở/cập nhật PR: **Đúng hạn**, **Muộn**, **Quá hạn**.

@@ -1,0 +1,21 @@
+# Sản phẩm biên dịch .NET và bộ nhớ đệm Python
+**/bin/
+**/obj/
+**/__pycache__/
+*.py[cod]
+.vs/
+.vscode/
+*.user
+*.suo
+# Cấu hình riêng và thông tin nhạy cảm
+.env
+.env.*
+!.env.example
+**/appsettings.*.local.json
+**/secrets.json
+*.pfx
+*.p12
+*.pem
+*.key
+# Nhật trình phát triển và log máy chủ giữ cục bộ, không thuộc gói nộp
+tests/evidence/

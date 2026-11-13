@@ -1,0 +1,16 @@
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-A] chấm xong sub-1
+   [Worker-B] chấm xong sub-2
+   [Worker-B] bắt đầu chấm sub-4
+   [Worker-A] bắt đầu chấm sub-3
+   [Worker-A] chấm xong sub-3
+   [Worker-B] chấm xong sub-4

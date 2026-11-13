@@ -1,0 +1,32 @@
+### Health
+GET http://localhost:5000/
+
+### List assignments
+GET http://localhost:5000/api/assignments
+
+### Create a valid submission (replace StudentCode and RepositoryUrl)
+POST http://localhost:5000/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "dtc245200427",
+  "repositoryUrl": "https://github.com/dongtuan-creator/CNTTK23D"
+}
+
+### Invalid submission: empty student code should return 400
+POST http://localhost:5000/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/dongtuan-creator/CNTTK23D"
+}
+
+### Read an existing submission (replace with an ID returned above)
+GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000
+
+### Read a missing submission (should return 404)
+GET http://localhost:5000/api/submissions/ffffffff-ffff-ffff-ffff-ffffffffffff
+

@@ -1,0 +1,5 @@
+Du doan truoc khi chay:
+a: client hien bai 3, khong sua client.
+b: tat API thi loi ket noi.
+c: ma sinh vien rong thi 400, EnsureSuccessStatusCode nem ngoai le.
+d: sai cong thi loi, truyen dung URL thi thanh cong.

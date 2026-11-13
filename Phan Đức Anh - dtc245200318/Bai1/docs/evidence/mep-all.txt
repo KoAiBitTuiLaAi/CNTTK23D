@@ -1,0 +1,50 @@
+﻿
+================================================================
+1. Request–Response: gửi yêu cầu và CHỜ phản hồi
+================================================================
+   [GradingService] nhận yêu cầu chấm bài của SV001
+[Client] Nhận phản hồi: SV001: 8.5 điểm
+   [GradingService] nhận yêu cầu chấm bài của SV002
+[Client] Quá thời gian chờ 1s → báo lỗi hoặc thử lại sau
+
+================================================================
+2. One-way: gửi đi, KHÔNG chờ kết quả nghiệp vụ
+================================================================
+[Sender] gửi log #1 và tiếp tục việc khác
+[Sender] gửi log #2 và tiếp tục việc khác
+[Sender] gửi log #3 và tiếp tục việc khác
+   [AuditLog] đã ghi: SV001 đã đăng nhập
+   [AuditLog] đã ghi: SV002 đã đăng nhập
+   [AuditLog] đã ghi: SV003 đã đăng nhập
+
+================================================================
+3. Queue-based: đẩy job vào hàng đợi, worker xử lý dần
+================================================================
+[API] nhận sub-1 → trả ngay status = processing
+[API] nhận sub-2 → trả ngay status = processing
+[API] nhận sub-3 → trả ngay status = processing
+[API] nhận sub-4 → trả ngay status = processing
+   [Worker-A] bắt đầu chấm sub-1
+   [Worker-B] bắt đầu chấm sub-2
+   [Worker-B] chấm xong sub-2
+   [Worker-B] bắt đầu chấm sub-3
+   [Worker-A] chấm xong sub-1
+   [Worker-A] bắt đầu chấm sub-4
+   [Worker-B] chấm xong sub-3
+   [Worker-A] chấm xong sub-4
+
+================================================================
+4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
+================================================================
+[Worker] chấm xong → phát sự kiện SubmissionGraded
+   [ScoreService] lưu điểm 8.5 cho sub-1
+   [NotificationService] báo sinh viên: sub-1 đã có điểm
+   [StatsService] cập nhật bảng thống kê
+
+================================================================
+5. Streaming / Push: nhận cập nhật liên tục
+================================================================
+[Client] cập nhật: sub-1 → received
+[Client] cập nhật: sub-1 → processing 30%
+[Client] cập nhật: sub-1 → processing 70%
+[Client] cập nhật: sub-1 → graded: 8.5

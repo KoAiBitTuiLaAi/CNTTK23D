@@ -1,0 +1,7 @@
+BasicWebApi HTTP checks, port 15081
+/ => 200 {"application":"BasicWebApi","message":"ASP.NET Core Web API is running."}
+/hello/An?language=vi => 200 {"message":"Xin chào, An!"}
+/hello/An?language=en => 200 {"message":"Hello, An!"}
+/hello/An?language=ja => 200 {"message":"Konnichiwa, An!"}
+POST Binh => 201; Location=/greetings/1; {"id":1,"name":"Binh","createdAt":"2026-11-06T03:37:35.0521409+00:00"}
+POST empty => 400 {"message":"Name must not be empty."}

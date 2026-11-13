@@ -61,7 +61,7 @@ src/Submission.Api/       API chính
 src/Submission.Client/    Client chính, không tham chiếu project API
 requests.http             Kiểm thử 200, 201, 400, 404 và dữ liệu thiếu
 docs/bai1.md               Nhật ký và trả lời câu hỏi
-docs/evidence/             Log chạy thật và ảnh trình bày bản ghi
+docs/evidence/             Log chạy thật và dữ liệu kiểm thử dạng văn bản
 .vscode/                   Cấu hình build và debug
 samples/MepDemo/           Bản MepDemo đã được cung cấp
 samples/BasicWebApi/       Dựng theo đặc tả Bước 8, có language=ja
@@ -83,6 +83,6 @@ Bài nằm trong `Trương Văn Đức Trung - dtc245200314/Bai1/` ở fork củ
 Bai1 - dtc245200314 - Trương Văn Đức Trung
 ```
 
-PR bài nộp: https://github.com/PTUDPTK23/CNTTK23D/pull/2 (đã mở và được hệ thống lớp gắn nhãn Đúng hạn).
+PR nộp ban đầu: https://github.com/PTUDPTK23/CNTTK23D/pull/2 (đã được gộp và được hệ thống lớp gắn nhãn Đúng hạn). Nhật ký và minh chứng được trình bày bằng văn bản trong `docs/bai1.md`.
 
-Chỉ thêm hoặc sửa tệp bên trong thư mục sinh viên này. Thư mục `bin`, `obj` được loại khỏi bài nộp bằng `.gitignore`. Khi bổ sung bài, commit vào cùng nhánh để cập nhật PR hiện tại.
+Chỉ thêm hoặc sửa tệp bên trong thư mục sinh viên này. Thư mục `bin`, `obj` được loại khỏi bài nộp bằng `.gitignore`. Khi PR còn mở, commit vào cùng nhánh để cập nhật PR đó. Nếu PR đã được gộp, gửi phần chỉnh sửa bằng PR bổ sung.

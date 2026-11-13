@@ -1,0 +1,46 @@
+@api = http://localhost:5000
+
+### 1. Trạng thái dịch vụ -> 200
+GET {{api}}/
+
+### 2. Danh sách hai bài tập -> 200
+GET {{api}}/api/assignments
+
+### 3. Nộp hợp lệ -> 201 và Location; chạy trước request số 5
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "DTC245200318",
+  "repositoryUrl": "https://github.com/anhphann1412-max/CNTTK23D"
+}
+
+### 4. Thiếu mã sinh viên -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/anhphann1412-max/CNTTK23D"
+}
+
+### 5. Đọc lại ID từ phản hồi request số 3 -> 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6. GUID chưa tồn tại -> 404
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 7. AssignmentId không dương -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 0, "studentCode": "DTC245200318", "repositoryUrl": "https://github.com/anhphann1412-max/CNTTK23D" }
+
+### 8. Thiếu repositoryUrl -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "DTC245200318" }

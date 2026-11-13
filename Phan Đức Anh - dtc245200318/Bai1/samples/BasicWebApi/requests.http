@@ -1,0 +1,25 @@
+@api = http://localhost:5081
+
+### 1. 200
+GET {{api}}/
+
+### 2. 200 Hello, An!
+GET {{api}}/hello/An?language=en
+
+### 3. 201 + Location: /greetings/1 trên API vừa khởi động
+POST {{api}}/greetings
+Content-Type: application/json
+
+{ "name": "Binh", "language": "vi" }
+
+### 4. 400
+POST {{api}}/greetings
+Content-Type: application/json
+
+{ "name": "", "language": "vi" }
+
+### 5. Ngôn ngữ mặc định
+GET {{api}}/hello/An
+
+### 6. Phần tự làm: tiếng Nhật
+GET {{api}}/hello/An?language=ja

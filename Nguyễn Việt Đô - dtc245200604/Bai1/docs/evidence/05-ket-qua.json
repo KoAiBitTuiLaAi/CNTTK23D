@@ -1,0 +1,35 @@
+{
+  "a": {
+    "prediction": "API them bai thu ba: Client se doc du ba bai, khong sua Client.",
+    "code": 0,
+    "count": 3,
+    "correct": true
+  },
+  "b": {
+    "prediction": "Tat API: ket noi bi tu choi, HttpRequestException/SocketException 10061, khong co HTTP response.",
+    "code": 3762504530,
+    "correct": true
+  },
+  "c": {
+    "prediction": "StudentCode rong: POST tra 400 va EnsureSuccessStatusCode nem ngoai le.",
+    "status": 400,
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}",
+    "code": 3762504530,
+    "correct": true
+  },
+  "d": {
+    "prediction": "API o 5050/Client 5000 bi loi; truyen URL 5050 thi thanh cong, khong sua code.",
+    "wrongCode": 3762504530,
+    "status": 201,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Fri, 06 Nov 2026 11:23:51 GMT",
+      "Server": "Kestrel",
+      "Location": "/api/submissions/36f3f41a-9d74-461f-9607-62d629d835dc",
+      "Transfer-Encoding": "chunked"
+    },
+    "code": 0,
+    "correct": true
+  }
+}

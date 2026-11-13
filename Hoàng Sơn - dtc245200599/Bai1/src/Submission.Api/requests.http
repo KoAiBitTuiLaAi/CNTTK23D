@@ -1,0 +1,27 @@
+﻿@api = http://localhost:5000
+
+### Kiem tra API dang chay
+GET {{api}}/
+
+### Lay danh sach bai tap
+GET {{api}}/api/assignments
+
+### Tao luot nop hop le
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/bai-tap-1" }
+
+### Thieu studentCode -> 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://example.com/x" }
+
+### Doc lai luot nop vua tao -> 200 OK
+@submissionId = {{createSubmission.response.body.$.id}}
+GET {{api}}/api/submissions/{{submissionId}}
+
+### Doc luot nop khong ton tai -> 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000

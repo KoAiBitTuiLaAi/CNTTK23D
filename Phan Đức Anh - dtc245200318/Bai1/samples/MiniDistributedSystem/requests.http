@@ -1,0 +1,19 @@
+@api = http://localhost:5000
+
+### 1. 200
+GET {{api}}/
+
+### 2. 200
+GET {{api}}/api/assignments
+
+### 3. 201
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "SV001", "repositoryUrl": "https://github.com/example/EduSubmit" }
+
+### 4. 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://github.com/example/EduSubmit" }

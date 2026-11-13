@@ -1,0 +1,9 @@
+﻿  Determining projects to restore...
+  Restored D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client\Submission.Client.csproj (in 145 ms).
+  Submission.Client -> D:\Chat GPT\EduSubmit-DTC245200318\.experiments\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.55
