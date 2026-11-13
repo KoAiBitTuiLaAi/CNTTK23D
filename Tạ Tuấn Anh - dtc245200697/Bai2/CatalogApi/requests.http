@@ -1,0 +1,11 @@
+@api = http://localhost:5100
+### Danh sách sản phẩm → 200
+GET {{api}}/api/products
+### Sản phẩm không tồn tại → 404 + ApiError
+GET {{api}}/api/products/999
+### Tạo sản phẩm hợp lệ → 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5",
+"price": 80000 }
+### ... đủ 8 ca: xem Bước 6 tài liệu Word
