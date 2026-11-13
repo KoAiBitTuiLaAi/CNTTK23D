@@ -211,7 +211,32 @@ Lỗi do handler trả luôn có `ApiError`; ba ca của framework (5d, 5e, 5g) 
 ### requests.http
 `Bai2/EduSubmit/requests.http` có 11 request, bao phủ 200, 201, 400, 404, 405, 415. Request đọc lại lượt nộp lấy id từ request nộp bài bằng `# @name createSubmission` và `{{createSubmission.response.body.$.id}}`.
 
-<!-- Dán ảnh REST Client EduSubmit: 200, 201, 400, 404 -->
+200
+<img width="1920" height="1140" alt="{7FA9CCA1-5DF2-42A1-A30C-F380D612A64B}" src="https://github.com/user-attachments/assets/900af7a3-a50a-42f5-87d1-72e879d8eaf4" />
+
+404
+<img width="1920" height="1140" alt="{27E632FD-D2C0-481C-B291-0EA4D2ADD7ED}" src="https://github.com/user-attachments/assets/d3f1fb91-9794-4c76-8012-ce61e706d98a" />
+
+201
+<img width="1920" height="1140" alt="{89C1350D-2DE4-4A1C-8B4D-78936E823BC7}" src="https://github.com/user-attachments/assets/604bd8c6-2455-4858-8b2c-19c34e1d9ffb" />
+
+200
+<img width="1920" height="1140" alt="{D9BA4D34-0587-4FF7-9B86-F9115B99ECB5}" src="https://github.com/user-attachments/assets/ef187254-3732-42cd-a10a-950906834d25" />
+
+400
+<img width="1920" height="1140" alt="{800BC699-39E7-4F15-88C0-C76A9123F8DD}" src="https://github.com/user-attachments/assets/5d26a95d-3e10-484d-8594-fc844bdf6ad1" />
+
+404
+<img width="1920" height="1140" alt="{E98CA181-E646-4677-8EC6-74D4FCE9CD9C}" src="https://github.com/user-attachments/assets/8ce8acb1-772c-4995-ab8b-234b11676145" />
+
+400
+<img width="1920" height="1140" alt="{75BCCD52-A631-4552-864E-1C5E9ECAC33E}" src="https://github.com/user-attachments/assets/759a87ec-cef5-4044-b98a-c473906c0b72" />
+
+415
+<img width="1920" height="1140" alt="{A3210527-BBBA-43F4-AB47-737EF812AC6D}" src="https://github.com/user-attachments/assets/93279011-bfb5-4138-b023-8144ba613967" />
+
+405
+<img width="1920" height="1140" alt="{50D919A0-D980-455E-A7C4-ACF5355F46EB}" src="https://github.com/user-attachments/assets/f230702d-e924-4e92-8466-257433456291" />
 
 ### Máy khách 4 nấc
 Máy khách xem mã trạng thái trước rồi mới đọc body; lỗi nào cũng đọc bằng một hàm `PrintApiErrorAsync` vì API trả cùng dạng `ApiError`. Nấc 3 dùng `GetAsync` theo header Location thay vì `GetFromJsonAsync` (hàm này ném ngoại lệ khi gặp 404 và bỏ mất `ApiError`).
@@ -228,7 +253,7 @@ Thu gui yeu cau loi: 400 BadRequest
 INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
 ```
 
-<!-- Dán ảnh 2 terminal Submission.Api + Submission.Client -->
+<img width="1920" height="1140" alt="{99A88FA0-191D-4A40-B7D8-FE6B554F5071}" src="https://github.com/user-attachments/assets/24935e32-5e0b-4343-bfa8-2698db76763c" />
 
 ### Ba câu hỏi giải thích (EduSubmit)
 1. Vì sao URI dùng danh từ, còn hành động do phương thức HTTP đảm nhận?
