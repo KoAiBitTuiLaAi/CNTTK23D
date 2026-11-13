@@ -53,6 +53,14 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
+// GET /api/submissions/{submissionId:guid} : đọc lại lượt nộp theo header Location
+app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) => {
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+    return submission is null
+        ? Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."))
+        : Results.Ok(submission);
+});
+
 app.Run();
 
 // DTO: hình dạng dữ liệu đi qua mạng (khai báo sau app.Run())
