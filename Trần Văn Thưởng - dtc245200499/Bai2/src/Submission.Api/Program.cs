@@ -22,6 +22,15 @@ app.MapGet("/api/books", (string? keyword) =>
     return Results.Ok(result);
 });
 
+app.MapGet("/api/books/{bookId:int}", (int bookId) =>
+{
+    var book = books.FirstOrDefault(item => item.Id == bookId);
+    return book is null
+        ? Results.NotFound(new ApiError("BOOK_NOT_FOUND", $"Book {bookId} was not found."))
+        : Results.Ok(book);
+});
+
 app.Run();
 
 record BookDto(int Id, string Title, string Author, string Isbn, string Category, int AvailableCopies);
+record ApiError(string Code, string Message);
