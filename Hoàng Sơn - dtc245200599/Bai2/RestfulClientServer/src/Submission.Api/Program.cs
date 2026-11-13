@@ -4,7 +4,7 @@ var app = builder.Build();
 var assignments = new List<AssignmentDto>
 {
     new(1, "Bai tap REST API", "Thiet ke endpoint va xu ly ma trang thai HTTP.", true),
-    new(2, "Bai tap Client", "Viet console client goi Submission.Api.", true)
+    new(2, "Bai tap Client", "Viet console client goi Submission.Api.", false)
 };
 var submissions = new List<SubmissionDto>();
 
@@ -22,6 +22,36 @@ app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) =>
     return assignment is null
         ? Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."))
         : Results.Ok(assignment);
+});
+
+app.MapPost("/api/assignments/{assignmentId:int}/submissions", (int assignmentId, CreateSubmissionRequest request) =>
+{
+    var assignment = assignments.FirstOrDefault(item => item.Id == assignmentId);
+    if (assignment is null)
+    {
+        return Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."));
+    }
+
+    if (!assignment.IsOpen)
+    {
+        return Results.BadRequest(new ApiError("ASSIGNMENT_CLOSED", "Bai tap da dong, khong nhan bai nop."));
+    }
+
+    if (string.IsNullOrWhiteSpace(request.StudentCode) || string.IsNullOrWhiteSpace(request.RepositoryUrl))
+    {
+        return Results.BadRequest(new ApiError("INVALID_SUBMISSION", "Thieu ma sinh vien hoac kho ma nguon."));
+    }
+
+    var submission = new SubmissionDto(
+        Guid.NewGuid(),
+        assignmentId,
+        request.StudentCode.Trim(),
+        request.RepositoryUrl.Trim(),
+        "received",
+        DateTimeOffset.UtcNow);
+    submissions.Add(submission);
+
+    return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
 app.Run();
