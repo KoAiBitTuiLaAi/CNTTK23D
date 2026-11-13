@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+// Du lieu mau duoc luu trong bo nho cua tien trinh API.
 var assignments = new List<AssignmentDto>
 {
     new(1, "Bai tap REST API", "Thiet ke endpoint RESTful va ma trang thai HTTP.", true),
@@ -72,6 +73,20 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
 
         return Results.Created($"/api/submissions/{submission.Id}", submission);
     });
+
+app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
+{
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+
+    if (submission is null)
+    {
+        return Results.NotFound(new ApiError(
+            "SUBMISSION_NOT_FOUND",
+            "Khong tim thay luot nop."));
+    }
+
+    return Results.Ok(submission);
+});
 
 app.Run();
 
