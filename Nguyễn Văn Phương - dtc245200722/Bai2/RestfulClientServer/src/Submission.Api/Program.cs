@@ -17,6 +17,14 @@ app.MapGet("/", () => Results.Ok(new {
 // GET /api/assignments : danh sách bài tập
 app.MapGet("/api/assignments", () => Results.Ok(assignments));
 
+// GET /api/assignments/{assignmentId:int} : chi tiết một bài tập
+app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) => {
+    var assignment = assignments.FirstOrDefault(item => item.Id == assignmentId);
+    return assignment is null
+        ? Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."))
+        : Results.Ok(assignment);
+});
+
 app.Run();
 
 // DTO: hình dạng dữ liệu đi qua mạng (khai báo sau app.Run())
