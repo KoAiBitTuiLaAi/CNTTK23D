@@ -66,6 +66,15 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
+// GET /api/submissions/{submissionId:guid} : đọc lại lượt nộp theo header Location (Bước 6)
+app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
+{
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+    return submission is null
+        ? Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."))
+        : Results.Ok(submission);
+});
+
 // ④ Chạy
 app.Run();
 
