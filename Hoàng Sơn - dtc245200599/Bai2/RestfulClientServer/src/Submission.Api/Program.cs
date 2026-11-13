@@ -42,10 +42,19 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions", (int assignmentId
         return Results.BadRequest(new ApiError("INVALID_SUBMISSION", "Thieu ma sinh vien hoac kho ma nguon."));
     }
 
+    var studentCode = request.StudentCode.Trim();
+    var duplicated = submissions.Any(item =>
+        item.AssignmentId == assignmentId &&
+        item.StudentCode.Equals(studentCode, StringComparison.OrdinalIgnoreCase));
+    if (duplicated)
+    {
+        return Results.Conflict(new ApiError("DUPLICATE_SUBMISSION", "Sinh vien da nop bai tap nay."));
+    }
+
     var submission = new SubmissionDto(
         Guid.NewGuid(),
         assignmentId,
-        request.StudentCode.Trim(),
+        studentCode,
         request.RepositoryUrl.Trim(),
         "received",
         DateTimeOffset.UtcNow);
@@ -62,10 +71,24 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
         : Results.Ok(submission);
 });
 
+app.MapDelete("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
+    DeleteSubmission(submissions, submissionId));
+
 app.Run();
+
+static IResult DeleteSubmission(List<SubmissionDto> submissions, Guid submissionId)
+{
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+    if (submission is null)
+    {
+        return Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."));
+    }
+
+    submissions.Remove(submission);
+    return Results.NoContent();
+}
 
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 record ApiError(string Code, string Message);
 record CreateSubmissionRequest(string? StudentCode, string? RepositoryUrl);
 record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, string RepositoryUrl, string Status, DateTimeOffset ReceivedAt);
-
