@@ -50,6 +50,15 @@ app.MapPost("/api/books/{bookId:int}/reservations", (int bookId, CreateReservati
     return Results.Created($"/api/reservations/{reservation.Id}", reservation);
 });
 
+app.MapGet("/api/reservations/{reservationId:guid}", (Guid reservationId) =>
+{
+    var reservation = reservations.FirstOrDefault(item => item.Id == reservationId);
+    return reservation is null
+        ? Results.NotFound(new ApiError("RESERVATION_NOT_FOUND", $"Reservation {reservationId} was not found."))
+        : Results.Ok(reservation);
+});
+
+
 app.Run();
 
 record BookDto(int Id, string Title, string Author, string Isbn, string Category, int AvailableCopies)
