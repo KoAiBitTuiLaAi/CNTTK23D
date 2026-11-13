@@ -30,7 +30,33 @@ app.MapGet("/api/books/{bookId:int}", (int bookId) =>
         : Results.Ok(book);
 });
 
+app.MapPost("/api/books/{bookId:int}/reservations", (int bookId, CreateReservationRequest? request) =>
+{
+    var book = books.FirstOrDefault(item => item.Id == bookId);
+    if (book is null)
+        return Results.NotFound(new ApiError("BOOK_NOT_FOUND", $"Book {bookId} was not found."));
+
+    if (request is null || string.IsNullOrWhiteSpace(request.StudentCode)
+        || string.IsNullOrWhiteSpace(request.StudentName))
+        return Results.BadRequest(new ApiError("INVALID_RESERVATION", "StudentCode and StudentName are required."));
+
+    if (book.AvailableCopies <= 0)
+        return Results.Conflict(new ApiError("NO_COPIES_AVAILABLE", "No available copies remain for this book."));
+
+    book.AvailableCopies--;
+    var reservation = new ReservationDto(Guid.NewGuid(), book.Id, book.Title,
+        request.StudentCode.Trim(), request.StudentName.Trim(), "reserved", DateTimeOffset.UtcNow);
+    reservations.Add(reservation);
+    return Results.Created($"/api/reservations/{reservation.Id}", reservation);
+});
+
 app.Run();
 
-record BookDto(int Id, string Title, string Author, string Isbn, string Category, int AvailableCopies);
+record BookDto(int Id, string Title, string Author, string Isbn, string Category, int AvailableCopies)
+{
+    public int AvailableCopies { get; set; } = AvailableCopies;
+}
+record CreateReservationRequest(string StudentCode, string StudentName);
+record ReservationDto(Guid Id, int BookId, string BookTitle, string StudentCode,
+    string StudentName, string Status, DateTimeOffset ReservedAt);
 record ApiError(string Code, string Message);
