@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="requests.http" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Catalog.Api/Catalog.Api.csproj" />
     <Project Path="src/Catalog.Client/Catalog.Client.csproj" />
