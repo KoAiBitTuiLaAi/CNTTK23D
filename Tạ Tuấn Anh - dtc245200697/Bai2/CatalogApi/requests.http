@@ -1,11 +1,45 @@
 @api = http://localhost:5100
-### Danh sách sản phẩm → 200
+
+### 1. Kiểm tra máy chủ đang chạy → 200 OK
+GET {{api}}/
+
+### 2. Danh sách sản phẩm → 200 OK
 GET {{api}}/api/products
-### Sản phẩm không tồn tại → 404 + ApiError
+
+### 3. Chi tiết sản phẩm 1 → 200 OK
+GET {{api}}/api/products/1
+
+### 4. Sản phẩm không tồn tại → 404 Not Found + ApiError
 GET {{api}}/api/products/999
-### Tạo sản phẩm hợp lệ → 201 Created + Location
+
+### 5. Id không phải số → 404 Not Found (body rỗng, do Framework trả)
+GET {{api}}/api/products/abc
+
+### 6. Tạo sản phẩm hợp lệ → 201 Created + Location
 POST {{api}}/api/products
 Content-Type: application/json
-{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5",
-"price": 80000 }
-### ... đủ 8 ca: xem Bước 6 tài liệu Word
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Tạo sản phẩm giá âm → 400 Bad Request + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. Tạo sản phẩm thiếu Content-Type → 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
