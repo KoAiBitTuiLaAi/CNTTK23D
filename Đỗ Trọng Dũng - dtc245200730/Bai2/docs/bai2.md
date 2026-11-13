@@ -1,4 +1,4 @@
-# Bài 2 – RESTful API
+<img width="1920" height="1140" alt="{0DA18B85-4A2E-49FC-8AF0-AB61503F0BE0}" src="https://github.com/user-attachments/assets/99bf8f95-2556-4d91-a387-98a9cd8adb62" /># Bài 2 – RESTful API
 Họ tên: Đỗ Trọng Dũng
 MSSV: DTC245200730
 Lớp: CNTT K23D
@@ -12,7 +12,7 @@ dotnet run --project src/Catalog.Api --urls http://localhost:5100
 ```
 - `curl.exe -i http://localhost:5100/` trả `200 OK` và `{"service":"Catalog.Api","status":"running"}`.
 
-<!-- Dán ảnh Terminal 1 có dòng "Now listening on: http://localhost:5100" và kết quả curl.exe -->
+<img width="1920" height="1140" alt="{F82A7439-48C1-47C9-8524-2DE12CA984EA}" src="https://github.com/user-attachments/assets/832510ab-3a8a-4197-bfd5-f772a7adae6b" />
 
 ## 2. Máy chủ Catalog.Api (Bước 3–5)
 Program.cs của máy chủ chia 5 vùng theo thứ tự: khởi tạo → dữ liệu mẫu → các endpoint → `app.Run()` → khai báo kiểu (record). Record phải nằm cuối tệp vì Program.cs dùng câu lệnh cấp cao nhất (top-level statements), C# bắt câu lệnh viết trước, khai báo kiểu viết sau.
@@ -62,7 +62,7 @@ curl.exe -i -X POST http://localhost:5100/api/products -d "@sp-hop-le.json"
 3. 400 khác 415 ở chỗ ai từ chối?
    415 do framework từ chối ở trạm "đọc body": thiếu header `Content-Type: application/json` nên ASP.NET không biết đổi body thành `CreateProductRequest`, handler không chạy, không có `ApiError`. 400 `INVALID_PRODUCT` do code tự viết trong handler từ chối: body đã đọc được nhưng sai luật nghiệp vụ (tên rỗng hoặc giá ≤ 0), body có `ApiError` nói rõ lỗi gì. Nhìn mã là biết lỗi ở đâu: 404/405 sai URI hoặc phương thức, 415 quên header, 400 rỗng là JSON hỏng, 400 có `ApiError` là dữ liệu sai luật.
 
-<!-- Dán ảnh 3 lệnh curl.exe POST: 201, 400, 415 -->
+<img width="1920" height="1140" alt="{5F25302A-ABFB-4B6D-A1B4-B4284574E21C}" src="https://github.com/user-attachments/assets/8b49d891-12d4-47e3-ad36-778599d70f2f" />
 
 ## 3. requests.http (Bước 6)
 Tệp `CatalogApi/requests.http` dùng biến `@api = http://localhost:5100`, mỗi ca ngăn bằng `###`, tiêu đề ghi luôn mã mong đợi. Chạy lại máy chủ rồi bấm Send Request lần lượt:
@@ -78,7 +78,21 @@ Tệp `CatalogApi/requests.http` dùng biến `@api = http://localhost:5100`, m�
 | 7 | POST giá âm | 400 + ApiError | 400 + `INVALID_PRODUCT` |
 | 8 | POST thiếu Content-Type | 415 | 415 |
 
-<!-- Dán ảnh REST Client: 200, 201, 400 -->
+200
+<img width="1920" height="1140" alt="{0DA18B85-4A2E-49FC-8AF0-AB61503F0BE0}" src="https://github.com/user-attachments/assets/db5f27a9-5ef4-4828-b129-17f7682eebef" />
+
+404
+<img width="1920" height="1140" alt="{A2BFC05D-C8BC-4E35-973D-63711E037DB4}" src="https://github.com/user-attachments/assets/07f27fb5-d7ee-423f-9c4f-de355528fc95" />
+
+201
+<img width="1920" height="1140" alt="{A65574B8-3522-4F01-B5EC-25F28F0A288F}" src="https://github.com/user-attachments/assets/80ed470a-c371-4206-bd6c-6cbdb2f99cd4" />
+
+400
+<img width="1920" height="1140" alt="{3D68F25C-0682-4FA3-A99E-12EBB6F0CCFB}" src="https://github.com/user-attachments/assets/714fdff2-aedf-47d8-9e95-1cc0485b1eee" />
+
+415
+<img width="1920" height="1140" alt="{B5F29249-B2C6-4613-BC95-D4C1F59E034A}" src="https://github.com/user-attachments/assets/883d9088-67a9-4634-9282-29ba1a05ddae" />
+
 
 ## 4. Máy khách Catalog.Client (Bước 7–8)
 Chạy hệ thống 2 tiến trình: Terminal 1 chạy máy chủ, Terminal 2 chạy
@@ -101,7 +115,7 @@ Thu gui du lieu sai: 400 BadRequest
 INVALID_PRODUCT: Ten san pham khong duoc de trong va gia phai lon hon 0.
 ```
 
-<!-- Dán ảnh 2 terminal máy chủ + máy khách -->
+<img width="1920" height="1140" alt="{E9C4A1D2-0D81-4197-A91C-41E3E220D9E2}" src="https://github.com/user-attachments/assets/af55c7be-ef00-40e8-a563-b09bf120e9f9" />
 
 1. Vì sao máy khách phải khai báo lại `ProductDto`?
    Vì máy chủ và máy khách là 2 chương trình riêng, `Catalog.Client.csproj` không tham chiếu tới `Catalog.Api`. Hai bên không dùng chung code mà chỉ chung hợp đồng là JSON đi qua mạng. Máy khách cần một kiểu có tên thuộc tính khớp JSON (`id`, `name`, `description`, `price`) để `GetFromJsonAsync<List<ProductDto>>` đổi JSON thành đối tượng C#. Tương tự máy khách cũng khai báo lại `CreateProductRequest` và `ApiError`.
