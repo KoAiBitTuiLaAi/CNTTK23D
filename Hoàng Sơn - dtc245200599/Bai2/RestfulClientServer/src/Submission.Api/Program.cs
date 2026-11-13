@@ -54,9 +54,18 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions", (int assignmentId
     return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
+app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
+{
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+    return submission is null
+        ? Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."))
+        : Results.Ok(submission);
+});
+
 app.Run();
 
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 record ApiError(string Code, string Message);
 record CreateSubmissionRequest(string? StudentCode, string? RepositoryUrl);
 record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, string RepositoryUrl, string Status, DateTimeOffset ReceivedAt);
+
