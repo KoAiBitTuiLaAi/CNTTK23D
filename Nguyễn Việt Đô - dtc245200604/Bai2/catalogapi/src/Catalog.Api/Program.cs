@@ -12,13 +12,17 @@ var products = new List<ProductDto>
     new(3, "Bai tap thuc hanh .NET", "Bo bai tap kem loi giai", 120000m)
 };
 var productsLock = new object();
+var nextId = 4;
 
 // GET /api/products: chụp danh sách dưới khóa, rồi mới trả JSON.
-app.MapGet("/api/products", () =>
+app.MapGet("/api/products", (string? keyword) =>
 {
     lock (productsLock)
     {
-        return Results.Ok(products.ToArray());
+        var matches = string.IsNullOrWhiteSpace(keyword)
+            ? products
+            : products.Where(item => item.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+        return Results.Ok(matches.ToArray());
     }
 });
 
@@ -44,16 +48,34 @@ app.MapPost("/api/products", (CreateProductRequest request) =>
             "Ten san pham khong duoc de trong va gia phai lon hon 0."));
     }
 
+    if (request.Name.Length > 100)
+    {
+        return Results.BadRequest(new ApiError(
+            "NAME_TOO_LONG", "Ten san pham khong duoc vuot qua 100 ky tu."));
+    }
+
     // Sinh ID và thêm vào danh sách là một thao tác nguyên tử.
     lock (productsLock)
     {
         var product = new ProductDto(
-            products.Max(item => item.Id) + 1,
+            nextId++,
             request.Name.Trim(),
             request.Description?.Trim() ?? "",
             request.Price);
         products.Add(product);
         return Results.Created($"/api/products/{product.Id}", product);
+    }
+});
+
+app.MapDelete("/api/products/{id:int}", (int id) =>
+{
+    lock (productsLock)
+    {
+        var product = products.FirstOrDefault(item => item.Id == id);
+        if (product is null)
+            return Results.NotFound(new ApiError("PRODUCT_NOT_FOUND", "Khong tim thay san pham."));
+        products.Remove(product);
+        return Results.NoContent();
     }
 });
 
