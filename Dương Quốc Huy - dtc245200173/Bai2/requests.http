@@ -1,0 +1,85 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra API dang chay -> 200
+GET {{api}}/
+
+### 2. Danh sach bai tap -> 200
+GET {{api}}/api/assignments
+
+### 3. Chi tiet bai tap ton tai -> 200
+GET {{api}}/api/assignments/1
+
+### 4. Bai tap khong ton tai -> 404 + ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 5a. Nop bai hop le -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200173",
+  "repositoryUrl": "https://github.com/Huiiii26/CNTTK23D"
+}
+
+### 6a. Doc lai luot nop vua tao -> 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5b. Thieu du lieu -> 400 + INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 5c. Nop vao bai tap khong ton tai -> 404 + ASSIGNMENT_NOT_FOUND
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200173",
+  "repositoryUrl": "https://github.com/Huiiii26/CNTTK23D"
+}
+
+### 5f. Thieu repositoryUrl -> 400 + INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200173"
+}
+
+### 5h. Nop vao bai tap da dong -> 400 + ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200173",
+  "repositoryUrl": "https://github.com/Huiiii26/CNTTK23D"
+}
+
+### 6b. Luot nop khong ton tai -> 404 + SUBMISSION_NOT_FOUND
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 5d. Thieu Content-Type -> 415 Unsupported Media Type
+POST {{api}}/api/assignments/1/submissions
+
+{
+  "studentCode": "dtc245200173",
+  "repositoryUrl": "https://github.com/Huiiii26/CNTTK23D"
+}
+
+### 5e. JSON hong -> 400 do framework tra
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200173",
+
+### 5g. Sai phuong thuc -> 405 Method Not Allowed, Allow: GET
+PUT {{api}}/api/assignments/1
+Content-Type: application/json
+
+{}
