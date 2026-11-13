@@ -18,6 +18,15 @@ app.MapGet("/", () => Results.Ok(new {
 // GET /api/products : danh sách sản phẩm
 app.MapGet("/api/products", () => Results.Ok(products));
 
+// GET /api/products/{id:int} : chi tiết một sản phẩm
+app.MapGet("/api/products/{id:int}", (int id) => {
+    var product = products.FirstOrDefault(p => p.Id == id);
+    return product is null
+        ? Results.NotFound(new ApiError("PRODUCT_NOT_FOUND",
+            "Khong tim thay san pham."))
+        : Results.Ok(product);
+});
+
 app.Run();
 
 // DTO: hình dạng dữ liệu đi qua mạng  (vùng 5, sau app.Run();)
