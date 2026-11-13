@@ -1,4 +1,4 @@
-<img width="1920" height="1140" alt="{0DA18B85-4A2E-49FC-8AF0-AB61503F0BE0}" src="https://github.com/user-attachments/assets/99bf8f95-2556-4d91-a387-98a9cd8adb62" /># Bài 2 – RESTful API
+Bài 2 – RESTful API
 Họ tên: Đỗ Trọng Dũng
 MSSV: DTC245200730
 Lớp: CNTT K23D
