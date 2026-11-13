@@ -5,7 +5,8 @@ var app = builder.Build();
 var assignments = new List<AssignmentDto>
 {
     new(1, "Bai tap REST API", "Thiet ke endpoint cho he thong nop bai", true),
-    new(2, "Bai tap Client", "Viet console client goi API", true)
+    new(2, "Bai tap Client", "Viet console client goi API", true),
+    new(3, "Bai tap MEP", "Bai tap da het han nop", false)   // Bước 9: bài tập đã đóng
 };
 var submissions = new List<SubmissionDto>();
 
@@ -41,6 +42,13 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
         string.IsNullOrWhiteSpace(request.RepositoryUrl))
         return Results.BadRequest(new ApiError("INVALID_SUBMISSION", "Thieu ma sinh vien hoac kho ma nguon."));
 
+    // Bước 9 (mở rộng): yêu cầu hợp lệ nhưng xung đột với dữ liệu đã có → 409
+    var duplicated = submissions.Any(item =>
+        item.AssignmentId == assignmentId &&
+        item.StudentCode.Equals(request.StudentCode.Trim(), StringComparison.OrdinalIgnoreCase));
+    if (duplicated)
+        return Results.Conflict(new ApiError("DUPLICATE_SUBMISSION", "Sinh vien da nop bai tap nay."));
+
     // Máy chủ tự sinh Id, trạng thái, thời điểm nhận; assignmentId lấy từ URI
     var submission = new SubmissionDto(
         Guid.NewGuid(),
@@ -59,6 +67,15 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) => {
     return submission is null
         ? Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."))
         : Results.Ok(submission);
+});
+
+// Bước 9 (mở rộng): DELETE /api/submissions/{submissionId:guid} : rút lượt nộp → 204 không body
+app.MapDelete("/api/submissions/{submissionId:guid}", (Guid submissionId) => {
+    var submission = submissions.FirstOrDefault(item => item.Id == submissionId);
+    if (submission is null)
+        return Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Khong tim thay luot nop."));
+    submissions.Remove(submission);
+    return Results.NoContent();
 });
 
 app.Run();

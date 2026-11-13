@@ -36,3 +36,34 @@ Content-Type: application/json
 
 ### 9. Lượt nộp không tồn tại → 404 SUBMISSION_NOT_FOUND
 GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 10. (Bước 9) Nộp vào bài tập 3 đã đóng → 400 ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV002", "repositoryUrl": "https://example.com/sv002/rest-api" }
+
+### 11. (Bước 9) SV002 nộp bài tập 1 → 201
+# @name sv002
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV002", "repositoryUrl": "https://example.com/sv002/rest-api" }
+
+### 12. (Bước 9) Gửi lại y hệt request 11 → 409 DUPLICATE_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV002", "repositoryUrl": "https://example.com/sv002/rest-api" }
+
+### 13. (Bước 9) Rút lượt nộp của request 11 → 204 No Content
+DELETE {{api}}/api/submissions/{{sv002.response.body.$.id}}
+
+### 14. (Bước 9) Rút lại lần nữa → 404 SUBMISSION_NOT_FOUND
+DELETE {{api}}/api/submissions/{{sv002.response.body.$.id}}
+
+### 15. (Bước 9) Nộp lại sau khi rút → 201, id mới
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV002", "repositoryUrl": "https://example.com/sv002/rest-api" }
