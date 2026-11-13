@@ -1,10 +1,12 @@
 # Đặt file này tại .github/workflows/han-nop.yml trong repo lớp.
 # Mỗi khi SV mở hoặc cập nhật Pull Request, GitHub tự so giờ với hạn nộp:
-#   - trước mốc đúng hạn  -> nhãn "Đúng hạn"
-#   - giữa hai mốc        -> nhãn "Muộn"
-#   - sau hạn chót        -> nhãn "Quá hạn"; PR MỚI mở sau hạn chót bị đóng tự động (đóng link nộp),
-#     PR cũ được đẩy thêm sau hạn chót -> bình luận cảnh báo, GV quyết định
-# Bài nào lấy theo tiêu đề PR: "Bai1 - MSSV - Họ tên", "Bai2 - ...".
+# - trước mốc đúng hạn -> nhãn "Đúng hạn"
+# - giữa hai mốc -> nhãn "Muộn"
+# - sau hạn chót -> nhãn "Quá hạn"; PR MỚI mở sau hạn chót bị đóng tự động (đóng link nộp),
+# PR cũ được đẩy thêm sau hạn chót -> bình luận cảnh báo, GV quyết định
+# Cách nhận biết bài theo tiêu đề PR:
+#   "Bai1 - MSSV - Họ tên", "Bai2 - ..."  -> khoá "1", "2"
+#   "Du an - MSSV - Họ tên" (hoặc "Dự án - ...") -> khoá "duan"
 # Đổi hạn: chỉ cần sửa khối HAN bên dưới (giờ Việt Nam, +07:00).
 name: Kiem tra han nop
 on:
@@ -21,7 +23,9 @@ jobs:
         env:
           HAN: |
             {
-              "1": { "dung_han": "2026-11-06T12:00:00+07:00", "han_chot": "2026-11-11T23:59:59+07:00" }
+              "1":    { "dung_han": "2026-11-06T12:00:00+07:00", "han_chot": "2026-11-11T23:59:59+07:00" },
+              "2":    { "dung_han": "2026-11-13T12:00:00+07:00", "han_chot": "2026-11-13T23:59:59+07:00" },
+              "duan": { "dung_han": "2026-11-19T23:59:59+07:00", "han_chot": "2026-11-19T23:59:59+07:00" }
             }
         with:
           script: |
@@ -29,18 +33,29 @@ jobs:
             const pr = context.payload.pull_request;
             // PR tạo từ chính repo lớp (của giảng viên) thì bỏ qua, chỉ kiểm tra bài nộp từ fork
             if (pr.head.repo && pr.head.repo.full_name === pr.base.repo.full_name) return;
-            const m = pr.title.match(/b[aà]i\s*(?:t[aậ]p)?\s*0?(\d+)/i);
-            if (!m || !han[m[1]]) {
-              if (context.payload.action === "synchronize") return;   // không nhắc lại mỗi lần đẩy thêm code
+            // Bỏ dấu tiếng Việt để nhận "Bài 2", "Bai2", "Dự án", "Du an"...
+            const tieuDe = pr.title.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/gi, "d");
+            const mBai = tieuDe.match(/\bbai\s*(?:tap)?\s*0?(\d+)/i);
+            const mDuAn = tieuDe.match(/\bdu\s*an\b/i);
+            const bai = mBai ? mBai[1] : (mDuAn ? "duan" : null);
+            if (!bai) {
+              if (context.payload.action === "synchronize") return; // không nhắc lại mỗi lần đẩy thêm code
               await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number,
-                body: "Tiêu đề PR cần theo mẫu `Bai1 - MSSV - Họ tên` để hệ thống tính hạn nộp." });
+                body: "Tiêu đề PR cần theo mẫu `Bai<số bài> - MSSV - Họ tên` (ví dụ `Bai2 - dtc245200000 - Nguyễn Văn A`) hoặc `Du an - MSSV - Họ tên` để hệ thống tính hạn nộp. Bạn hãy sửa lại tiêu đề PR (không cần đóng PR)." });
               return;
             }
-            const bai = m[1], now = new Date();
+            const ten = bai === "duan" ? "Dự án" : `Bài ${bai}`;
+            if (!han[bai]) {
+              if (context.payload.action === "synchronize") return;
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number,
+                body: `${ten} hiện chưa mở nhận bài (chưa có hạn nộp). Tiêu đề PR không sai; vui lòng liên hệ giảng viên.` });
+              return;
+            }
+            const now = new Date();
             const nhan = now <= new Date(han[bai].dung_han) ? "Đúng hạn"
-                       : now <= new Date(han[bai].han_chot) ? "Muộn" : "Quá hạn";
-            for (const [ten, mau] of [["Đúng hạn","2da44e"],["Muộn","fbca04"],["Quá hạn","d73a4a"]]) {
-              try { await github.rest.issues.createLabel({ ...context.repo, name: ten, color: mau }); } catch (e) {}
+              : now <= new Date(han[bai].han_chot) ? "Muộn" : "Quá hạn";
+            for (const [tenNhan, mau] of [["Đúng hạn","2da44e"],["Muộn","fbca04"],["Quá hạn","d73a4a"]]) {
+              try { await github.rest.issues.createLabel({ ...context.repo, name: tenNhan, color: mau }); } catch (e) {}
             }
             const cu = pr.labels.map(l => l.name).filter(n => ["Đúng hạn","Muộn","Quá hạn"].includes(n));
             const thuTu = ["Đúng hạn","Muộn","Quá hạn"];
@@ -55,10 +70,10 @@ jobs:
               if (context.payload.sender.login !== pr.user.login) return;
               if (context.payload.action === "synchronize") {
                 await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number,
-                  body: `Bài ${bai} được cập nhật lúc ${gio}, sau hạn chót. Phần cập nhật này tính là QUÁ HẠN; giảng viên sẽ quyết định có chấm hay không.` });
+                  body: `${ten} được cập nhật lúc ${gio}, sau hạn chót. Phần cập nhật này tính là QUÁ HẠN; giảng viên sẽ quyết định có chấm hay không.` });
                 return;
               }
               await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number,
-                body: `Bài ${bai} gửi lúc ${gio}, sau hạn chót nên không được nhận. Pull Request này đã được đóng tự động. Nếu có lý do chính đáng, liên hệ giảng viên.` });
+                body: `${ten} gửi lúc ${gio}, sau hạn chót nên không được nhận. Pull Request này đã được đóng tự động. Nếu có lý do chính đáng, liên hệ giảng viên.` });
               await github.rest.pulls.update({ ...context.repo, pull_number: pr.number, state: "closed" });
             }
