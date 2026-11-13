@@ -1,4 +1,4 @@
-Bài 2 – RESTful API
+# Bài 2 – RESTful API
 Họ tên: Đỗ Trọng Dũng
 MSSV: DTC245200730
 Lớp: CNTT K23D
@@ -164,5 +164,79 @@ INVALID_PRODUCT: Ten san pham khong duoc de trong va gia phai lon hon 0.
 | 9 | Máy khách chạy | đủ 4 nấc | ✓ |
 | 10 | Tắt máy chủ, chạy máy khách | lỗi kết nối | ✓ |
 
-## 8. Khó khăn gặp phải và cách giải quyết
+## 8. EduSubmit – áp dụng REST cho hệ thống nộp bài
+Mã nguồn ở `Bai2/EduSubmit`, lấy khung (solution, 2 project) từ EduSubmit Bài 1 rồi viết lại theo hợp đồng Bài 2. Khác Bài 1: lượt nộp là tài nguyên con của bài tập (`assignmentId` chuyển từ body lên URI), có thêm `GET /api/assignments/{id}`, mọi lỗi do handler trả cùng dạng `ApiError { code, message }`, bài tập có `IsOpen`.
+
+Lệnh chạy (thư mục `Bai2/EduSubmit`):
+```
+dotnet run --project src/Submission.Api --urls http://localhost:5000
+dotnet run --project src/Submission.Client -- http://localhost:5000
+```
+
+### Bảng hợp đồng API
+
+| Method | URI | Thành công | Lỗi |
+|--------|-----|------------|-----|
+| GET | `/api/assignments` | 200 danh sách | – |
+| GET | `/api/assignments/{assignmentId}` | 200 một bài tập | 404 `ASSIGNMENT_NOT_FOUND` |
+| POST | `/api/assignments/{assignmentId}/submissions` | 201 + Location | 404 `ASSIGNMENT_NOT_FOUND` · 400 `ASSIGNMENT_CLOSED` · 400 `INVALID_SUBMISSION` |
+| GET | `/api/submissions/{submissionId}` | 200 lượt nộp | 404 `SUBMISSION_NOT_FOUND` |
+
+Hai DTO cho lượt nộp: `CreateSubmissionRequest(StudentCode, RepositoryUrl)` máy khách gửi lên, `SubmissionDto(Id, AssignmentId, StudentCode, RepositoryUrl, Status, ReceivedAt)` máy chủ trả về. `Id` (Guid), `AssignmentId` (lấy từ URI), `Status = "received"` và `ReceivedAt` đều do máy chủ điền, máy khách không gửi được `"status": "graded"`. POST kiểm tra theo thứ tự: bài tập tồn tại → còn mở → body hợp lệ, mỗi `if … return` là một dòng lỗi trong bảng hợp đồng.
+
+### Bảng phá thử (8 ca bước 5 và đọc lại bước 6)
+Dữ liệu mẫu có bài 1, 2 đang mở và bài 3 đã đóng (`IsOpen = false`) để thử ca 5h.
+
+| Ca | Yêu cầu | Dự đoán | Kết quả thật | Ai trả |
+|----|---------|---------|--------------|--------|
+| 4a | GET `/api/assignments/1` | 200 | 200 + bài tập 1 | Handler |
+| 4b | GET `/api/assignments/999` | 404 | 404 + `ASSIGNMENT_NOT_FOUND` | Handler |
+| 4c | GET `/api/assignments/abc` | 404 | 404, body rỗng | Framework (không khớp `:int`) |
+| 5a | POST bài 1, `sv001.json` | 201 | 201 + `Location: /api/submissions/{guid}`, `status: received` | Handler |
+| 5b | POST bài 1, `rong.json` | 400 | 400 + `INVALID_SUBMISSION` | Handler |
+| 5c | POST bài 999 | 404 | 404 + `ASSIGNMENT_NOT_FOUND` | Handler |
+| 5d | Bỏ header Content-Type | 415 | 415, body rỗng | Framework |
+| 5e | Body JSON hỏng | 400 | 400, body không phải ApiError | Framework |
+| 5f | Body thiếu `repositoryUrl` | 400 | 400 + `INVALID_SUBMISSION` (trường thiếu thành null, handler bắt được) | Handler |
+| 5g | PUT `/api/assignments/1` | 405 | 405, `Allow: GET` | Framework |
+| 5h | POST vào bài 3 đã đóng | 400 | 400 + `ASSIGNMENT_CLOSED` | Handler |
+| 6a | GET địa chỉ trong Location | 200 | 200 + đúng lượt nộp | Handler |
+| 6b | GET `/api/submissions/00000000-…` | 404 | 404 + `SUBMISSION_NOT_FOUND` | Handler |
+| 6c | Tắt API, chạy lại, GET id cũ | 404 | 404 + `SUBMISSION_NOT_FOUND` | Handler: danh sách lượt nộp nằm trong RAM nên mất khi tắt tiến trình; chạy 2 bản API cùng lúc thì mỗi bản có danh sách riêng, không thấy lượt nộp của nhau |
+| 7a | Tắt API rồi chạy Client | lỗi kết nối | `HttpRequestException: ... actively refused it. (localhost:5000)` | Mạng: không có phản hồi |
+| 7b | Client gọi cổng 5999 | lỗi kết nối | `HttpRequestException ... (localhost:5999)` | Mạng: địa chỉ dịch vụ là cấu hình |
+
+Lỗi do handler trả luôn có `ApiError`; ba ca của framework (5d, 5e, 5g) và 4c không có. Lỗi mạng (7a, 7b) khác lỗi HTTP: không có phản hồi nào, không có mã trạng thái.
+
+### requests.http
+`Bai2/EduSubmit/requests.http` có 11 request, bao phủ 200, 201, 400, 404, 405, 415. Request đọc lại lượt nộp lấy id từ request nộp bài bằng `# @name createSubmission` và `{{createSubmission.response.body.$.id}}`.
+
+<!-- Dán ảnh REST Client EduSubmit: 200, 201, 400, 404 -->
+
+### Máy khách 4 nấc
+Máy khách xem mã trạng thái trước rồi mới đọc body; lỗi nào cũng đọc bằng một hàm `PrintApiErrorAsync` vì API trả cùng dạng `ApiError`. Nấc 3 dùng `GetAsync` theo header Location thay vì `GetFromJsonAsync` (hàm này ném ngoại lệ khi gặp 404 và bỏ mất `ApiError`).
+```
+Danh sach bai tap dang mo:
+- 1: Bai tap REST API
+- 2: Bai tap Client
+
+Da tao luot nop: ff028482-993a-4cca-9ae9-420197d11a9d
+Trang thai ban dau: received
+Doc lai luot nop ff028482-993a-4cca-9ae9-420197d11a9d: DTC245200730 - https://github.com/KoAiBitTuiLaAi/CNTTK23D
+
+Thu gui yeu cau loi: 400 BadRequest
+INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
+```
+
+<!-- Dán ảnh 2 terminal Submission.Api + Submission.Client -->
+
+### Ba câu hỏi giải thích (EduSubmit)
+1. Vì sao URI dùng danh từ, còn hành động do phương thức HTTP đảm nhận?
+   URI chỉ tài nguyên: `assignments`, `submissions`. Hành động do phương thức đảm nhận: GET đọc, POST tạo. Ví dụ nộp bài là `POST /api/assignments/1/submissions` ("tạo một lượt nộp thuộc bài tập 1") thay cho `/submitAssignment`. Lượt nộp là tài nguyên con nên nhìn URI là biết nộp cho bài tập nào, không phải đọc body.
+2. "Stateless" thể hiện ở đâu trong code đã viết?
+   Mỗi yêu cầu tự mang đủ thông tin: `assignmentId` trên URI, `studentCode` và `repositoryUrl` trong body; đọc lại thì `submissionId` nằm trên URI (lấy từ Location). Máy chủ không nhớ phiên của máy khách giữa hai lần gọi, nên yêu cầu tới bản API nào cũng xử lý được. Danh sách `submissions` là dữ liệu, không phải trạng thái phiên.
+3. Vì sao client và server mỗi bên khai báo DTO riêng mà vẫn khớp nhau?
+   DTO là hợp đồng JSON, không phải lớp dùng chung: `Submission.Client.csproj` không tham chiếu `Submission.Api`. Hai bên khớp nhau nhờ tên trường và kiểu trong JSON (`id`, `assignmentId`, `studentCode`, `repositoryUrl`, `status`, `receivedAt`, `code`, `message`). Phía máy chủ còn tách DTO vào (`CreateSubmissionRequest`, không có Id/Status) và DTO ra (`SubmissionDto`) để máy khách không tự điền được những gì máy chủ quyết định.
+
+## 9. Khó khăn gặp phải và cách giải quyết
 Không có.
