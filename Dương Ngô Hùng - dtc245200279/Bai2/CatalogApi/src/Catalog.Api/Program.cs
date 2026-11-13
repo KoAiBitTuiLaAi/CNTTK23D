@@ -21,6 +21,15 @@ app.MapGet("/", () => Results.Ok(new {
 // GET /api/products : danh sách sản phẩm (Bước 3)
 app.MapGet("/api/products", () => Results.Ok(products));
 
+// GET /api/products/{id:int} : chi tiết một sản phẩm (Bước 4)
+app.MapGet("/api/products/{id:int}", (int id) =>
+{
+    var product = products.FirstOrDefault(p => p.Id == id);
+    return product is null
+        ? Results.NotFound(new ApiError("PRODUCT_NOT_FOUND", "Khong tim thay san pham."))
+        : Results.Ok(product);
+});
+
 // ④ Chạy
 app.Run();
 
