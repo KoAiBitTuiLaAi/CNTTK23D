@@ -1,0 +1,41 @@
+@api = http://localhost:5000
+
+### 1. Danh sach bai tap -> 200
+GET {{api}}/api/assignments
+
+### 2. Chi tiet bai tap 1 -> 200
+GET {{api}}/api/assignments/1
+
+### 3. Bai tap khong ton tai -> 404 ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 4. Tao luot nop hop le -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200551",
+  "repositoryUrl": "https://github.com/example/student-assignment"
+}
+
+### 5. Du lieu khong hop le -> 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. Bai tap da dong -> 400 ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200551",
+  "repositoryUrl": "https://github.com/example/student-assignment"
+}
+
+### 7. Doc lai luot nop vua tao -> 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
