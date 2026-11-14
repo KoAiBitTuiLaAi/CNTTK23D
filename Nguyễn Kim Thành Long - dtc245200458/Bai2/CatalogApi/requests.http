@@ -1,0 +1,33 @@
+﻿@api = http://localhost:5100
+
+### 1. Kiem tra may chu - 200 OK
+GET {{api}}/
+
+### 2. Danh sach san pham - 200 OK
+GET {{api}}/api/products
+
+### 3. Chi tiet san pham so 1 - 200 OK
+GET {{api}}/api/products/1
+
+### 4. San pham khong ton tai - 404 + ApiError
+GET {{api}}/api/products/999
+
+### 5. Tham so id khong phai so - 404 rong
+GET {{api}}/api/products/abc
+
+### 6. Tao san pham hop le - 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
+
+### 7. Tao san pham gia am - 400 Bad Request + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "San pham loi", "description": "", "price": -1 }
+
+### 8. Tao san pham thieu Content-Type - 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
