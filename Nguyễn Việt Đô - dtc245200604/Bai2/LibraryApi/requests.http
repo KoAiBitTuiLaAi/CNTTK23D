@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:5200
+
+### 1. Danh sách sách — 200
+GET {{baseUrl}}/api/books
+Accept: application/json
+
+### 2. Không tìm thấy sách — 404
+GET {{baseUrl}}/api/books/999999
+Accept: application/json
+
+### 3. Tạo sách hợp lệ — 201; lưu id để xóa ở request 5
+# @name createBook
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt",
+  "price": 250.50
+}
+
+### 4. Dữ liệu không hợp lệ — 400
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{
+  "title": "",
+  "author": "",
+  "price": 0
+}
+
+### 5. Xóa chính sách vừa tạo — 204, body rỗng
+DELETE {{baseUrl}}/api/books/{{createBook.response.body.$.id}}
+
+### 6. Sai Content-Type — 415
+POST {{baseUrl}}/api/books
+Content-Type: text/plain
+
+{"title":"Wrong media type","author":"Demo","price":10}

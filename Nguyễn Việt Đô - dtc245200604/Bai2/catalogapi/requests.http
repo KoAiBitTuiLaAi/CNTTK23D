@@ -1,0 +1,86 @@
+@api = http://localhost:5100
+
+### 1. Dịch vụ đang chạy → 200 OK
+GET {{api}}/
+
+### 2. Danh sách sản phẩm → 200 OK (ban đầu có 3)
+GET {{api}}/api/products
+
+### 3. Chi tiết sản phẩm 1 → 200 OK
+GET {{api}}/api/products/1
+
+### 4. ID không tồn tại → 404 + ApiError PRODUCT_NOT_FOUND
+GET {{api}}/api/products/999
+
+### 5. ID không phải số nguyên → 404, body rỗng
+GET {{api}}/api/products/abc
+
+### 6. Tạo sản phẩm hợp lệ → 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Giá âm → 400 + ApiError INVALID_PRODUCT
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. Thiếu Content-Type JSON → 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 9. Lọc tên không phân biệt hoa thường → 200, sản phẩm có REST trong tên
+GET {{api}}/api/products?keyword=REST
+
+### 10. Tạo riêng sản phẩm để xóa → 201; lưu ID từ response
+# @name createForDelete
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham de xoa",
+  "description": "Kiem thu DELETE",
+  "price": 50000
+}
+
+### 11. Xóa đúng ID vừa tạo ở ca 10 → 204, body rỗng
+DELETE {{api}}/api/products/{{createForDelete.response.body.$.id}}
+
+### 12. Đọc lại sản phẩm đã xóa → 404 PRODUCT_NOT_FOUND
+GET {{api}}/api/products/{{createForDelete.response.body.$.id}}
+
+### 13. Xóa lại sản phẩm đã xóa → 404 PRODUCT_NOT_FOUND
+DELETE {{api}}/api/products/{{createForDelete.response.body.$.id}}
+
+### 14. Tên 101 ký tự → 400 NAME_TOO_LONG
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901",
+  "price": 1
+}
+
+### 15. Tên 101 ký tự và giá âm → 400 INVALID_PRODUCT (ưu tiên trước độ dài)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901",
+  "price": -1
+}
