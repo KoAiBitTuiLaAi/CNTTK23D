@@ -1,0 +1,26 @@
+@api = http://localhost:5000
+
+### Create an initial submission (201)
+# @name createForDelete
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://github.com/SV002/rest-api"
+}
+
+### Submit the same assignment again (409 DUPLICATE_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "sv002",
+  "repositoryUrl": "https://github.com/SV002/rest-api"
+}
+
+### Delete the created submission (204)
+DELETE {{api}}/api/submissions/{{createForDelete.response.body.$.id}}
+
+### Read after delete (404 SUBMISSION_NOT_FOUND)
+GET {{api}}/api/submissions/{{createForDelete.response.body.$.id}}

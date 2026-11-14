@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:5100
+
+### 1. GET /
+GET {{baseUrl}}/
+Accept: application/json
+
+### 2. GET /api/products
+GET {{baseUrl}}/api/products
+Accept: application/json
+
+### 3. GET /api/products/1
+GET {{baseUrl}}/api/products/1
+Accept: application/json
+
+### 4. GET /api/products/999
+GET {{baseUrl}}/api/products/999
+Accept: application/json
+
+### 5. GET /api/products/abc
+GET {{baseUrl}}/api/products/abc
+Accept: application/json
+
+### 6. POST hop le (201)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham buoc 6",
+  "description": "Kiem tra qua requests.http",
+  "price": 80000
+}
+
+### 7. POST gia am (400)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. POST thieu Content-Type (415)
+POST {{baseUrl}}/api/products
+
+{
+  "name": "San pham thieu header",
+  "description": "",
+  "price": 10000
+}

@@ -1,0 +1,35 @@
+@api = http://localhost:5000
+
+### 1. Server health -> 200
+GET {{api}}/
+
+### 2. List assignments -> 200
+GET {{api}}/api/assignments
+
+### 3. Existing assignment -> 200
+GET {{api}}/api/assignments/1
+
+### 4. Missing assignment -> 404 ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 5. Submit to an open assignment -> 201 Created
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/SV001/rest-api"
+}
+
+### 6. Read the submission created by request 5 -> 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 7. Invalid submission -> 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}

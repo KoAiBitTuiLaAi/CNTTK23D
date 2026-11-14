@@ -1,0 +1,56 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra máy chủ đang chạy → 200 OK
+GET {{api}}/
+
+### 2. Danh sách bài tập → 200 OK
+GET {{api}}/api/assignments
+
+### 3. Chi tiết bài tập 1 (tồn tại) → 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Chi tiết bài tập 999 (không tồn tại) → 404 Not Found + ApiError (ASSIGNMENT_NOT_FOUND)
+GET {{api}}/api/assignments/999
+
+### 5. Nộp bài hợp lệ cho bài tập 1 → 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "DTC245200697",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 6. Đọc lại lượt nộp vừa tạo theo id (chạy request 5 trước) → 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 7. Nộp bài thiếu dữ liệu (studentCode rỗng) → 400 Bad Request + ApiError (INVALID_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 8. Nộp bài vào bài tập đã đóng (bài tập 3) → 400 Bad Request + ApiError (ASSIGNMENT_CLOSED)
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "DTC245200697",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 9. Nộp bài vào bài tập không tồn tại (999) → 404 Not Found + ApiError (ASSIGNMENT_NOT_FOUND)
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "DTC245200697",
+  "repositoryUrl": "https://github.com/PTUDPTK23/CNTTK23D"
+}
+
+### 10. Đọc lượt nộp không tồn tại → 404 Not Found + ApiError (SUBMISSION_NOT_FOUND)
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
