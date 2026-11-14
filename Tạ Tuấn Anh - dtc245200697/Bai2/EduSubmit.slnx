@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/CatalogApi/" />
+  <Folder Name="/CatalogApi/src/">
+    <Project Path="CatalogApi/src/Catalog.Client/Catalog.Client.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Submission.Api/Submission.Api.csproj" />
+    <Project Path="src/Submission.Client/Submission.Client.csproj" />
+  </Folder>
+</Solution>
