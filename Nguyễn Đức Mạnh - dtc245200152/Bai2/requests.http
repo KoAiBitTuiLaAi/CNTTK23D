@@ -1,0 +1,32 @@
+@api = http://localhost:5000
+
+### 1. Danh sách bài tập → 200
+GET {{api}}/api/assignments
+
+### 2. Bài tập không tồn tại → 404 + ApiError (ASSIGNMENT_NOT_FOUND)
+GET {{api}}/api/assignments/999
+
+### 3. Nộp bài cho bài tập 1 → 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/rest-api" }
+
+### 4. Đọc lại lượt nộp vừa tạo (chạy request 3 trước) → 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Nộp bài thiếu dữ liệu → 400 + ApiError (INVALID_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "", "repositoryUrl": "" }
+
+### 6. Nộp bài cho bài tập đã đóng → 400 + ApiError (ASSIGNMENT_CLOSED)
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/rest-api" }
+
+### 7. Lượt nộp không tồn tại → 404 + ApiError (SUBMISSION_NOT_FOUND)
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
