@@ -56,6 +56,10 @@ Content-Type: application/json; charset=utf-8
 {"service":"Submission.Api","status":"running"}
 ```
 
+![dotnet build thành công](images/01-build.png)
+
+![Submission.Api chạy ở cổng 5000](images/02-api-running.png)
+
 ### Bước 3: danh sách bài tập
 
 ```text
@@ -68,6 +72,8 @@ Content-Type: application/json; charset=utf-8
  {"id":3,"title":"Bai tap cu","description":"Bai tap da het han nop","isOpen":false}]
 ```
 
+![GET / và GET /api/assignments](images/03-get-root-list.png)
+
 ### Bước 4: chi tiết bài tập
 
 | Ca | Lệnh | Kết quả thật | Ai trả lời |
@@ -77,6 +83,8 @@ Content-Type: application/json; charset=utf-8
 | 4c | `curl.exe -i http://localhost:5000/api/assignments/abc` | `404`, `Content-Length: 0` | Framework: `abc` không khớp ràng buộc `:int`, handler không chạy |
 
 4b và 4c đều là 404 nhưng khác nhau ở body: 4b có `ApiError` (URI đúng, tài nguyên không tồn tại), 4c body rỗng (đường dẫn không khớp tuyến nào).
+
+![Ca 4a, 4b, 4c](images/04-get-detail.png)
 
 ### Bước 5: bảng phá thử (8 ca POST)
 
@@ -97,18 +105,18 @@ curl.exe -i -X PUT http://localhost:5000/api/assignments/1
 curl.exe -i -X POST http://localhost:5000/api/assignments/3/submissions -H "Content-Type: application/json" -d "@sv001.json"
 ```
 
-Ca 5e và 5f gửi body trực tiếp (chạy trong Git Bash):
+Ca 5e và 5f gửi body trực tiếp qua pipe (`--data-binary "@-"` đọc body từ stdin, tránh lỗi dấu nháy của PowerShell). Ca 5e chỉ in 8 dòng đầu vì body lỗi của framework rất dài:
 
-```bash
+```powershell
 # 5e: JSON hỏng
-curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" -d '{"studentCode":"SV001",'
+'{"studentCode":"SV001",' | curl.exe -s -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" --data-binary "@-" | Select-Object -First 8
 # 5f: thiếu repositoryUrl
-curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" -d '{"studentCode":"SV001"}'
+'{"studentCode":"SV001"}' | curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" --data-binary "@-"
 ```
 
 | Ca | Yêu cầu | Dự đoán | Kết quả thật | Ai trả lời | Giải thích |
 |---|---|---|---|---|---|
-| 5a | POST bài 1, `sv001.json` | 201 | `201 Created`, `Location: /api/submissions/568659ad-...`, body có `"status":"received"` | Handler | Tạo thành công, có địa chỉ đọc lại |
+| 5a | POST bài 1, `sv001.json` | 201 | `201 Created`, `Location: /api/submissions/6fb79036-...`, body có `"status":"received"` | Handler | Tạo thành công, có địa chỉ đọc lại |
 | 5b | POST bài 1, `rong.json` | 400 | `400` + `INVALID_SUBMISSION` | Handler | Chuỗi rỗng, `IsNullOrWhiteSpace` chặn lại |
 | 5c | POST bài 999, `sv001.json` | 404 | `404` + `ASSIGNMENT_NOT_FOUND` | Handler | Tài nguyên cha không tồn tại, kiểm tra đầu tiên |
 | 5d | Như 5a nhưng bỏ `Content-Type` | 415 | `415 Unsupported Media Type`, `Content-Length: 0` | Framework | Không biết body là JSON, handler không chạy |
@@ -119,15 +127,23 @@ curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Cont
 
 Đoán đúng 8/8. Ba ca của framework (5d, 5e, 5g) không có `ApiError`; mọi lỗi do handler trả đều cùng dạng `{ code, message }`.
 
+![Ca 5a, 5b, 5c, 5d](images/05-post-5a-5d.png)
+
+![Ca 5e, 5f, 5g, 5h](images/06-post-5e-5h.png)
+
 ### Bước 6: đọc lại lượt nộp
 
 | Ca | Lệnh / thao tác | Kết quả thật |
 |---|---|---|
-| 6a | `curl.exe -i http://localhost:5000/api/submissions/568659ad-9819-41e1-a671-6469a0127649` (URI lấy từ `Location` của 5a) | `200 OK` + đúng lượt nộp `SV001` |
+| 6a | `curl.exe -i http://localhost:5000/api/submissions/6fb79036-0a2a-4c73-88ad-068e48fb6a16` (URI lấy từ `Location` của 5a) | `200 OK` + đúng lượt nộp `SV001` |
 | 6b | `curl.exe -i http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000` | `404` + `SUBMISSION_NOT_FOUND` |
 | 6c | Tắt API, chạy lại, gọi lại 6a với id cũ | `404` + `SUBMISSION_NOT_FOUND` |
 
 6c: lượt nộp "biến mất" vì danh sách `submissions` chỉ nằm trong RAM của tiến trình API; tắt tiến trình là mất dữ liệu. Nếu chạy 2 bản API cùng lúc, mỗi bản có danh sách riêng nên lượt nộp tạo ở bản này không đọc được ở bản kia.
+
+![Ca 6a, 6b](images/07-read-back.png)
+
+![Ca 6c: sau khi khởi động lại API, id cũ trả 404](images/11-after-restart.png)
 
 ### Bước 7: máy khách `Submission.Client`
 
@@ -137,13 +153,15 @@ Danh sach bai tap dang mo:
 - 1: Bai tap REST API
 - 2: Bai tap Client
 
-Da tao luot nop: 7776db06-a8db-40bc-9a2b-58843f4d9586
+Da tao luot nop: 0a00847d-9bb9-4eaa-868c-a88063d854ae
 Trang thai ban dau: received
-Doc lai luot nop 7776db06-a8db-40bc-9a2b-58843f4d9586: DTC245200730 - https://github.com/KoAiBitTuiLaAi/CNTTK23D
+Doc lai luot nop 0a00847d-9bb9-4eaa-868c-a88063d854ae: DTC245200730 - https://github.com/KoAiBitTuiLaAi/CNTTK23D
 
 Thu gui yeu cau loi: 400 BadRequest
 INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
 ```
+
+![Submission.Client chạy đủ 4 nấc](images/08-client.png)
 
 | Nấc | Việc client làm | Kết quả |
 |---|---|---|
@@ -158,6 +176,10 @@ INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
 | 7b | Chạy client với cổng sai `http://localhost:5999` | Giống 7a: địa chỉ dịch vụ là cấu hình truyền qua `args[0]`, không gán cứng |
 
 Lỗi mạng (không có phản hồi) khác lỗi HTTP (có phản hồi 4xx kèm `ApiError`).
+
+![Ca 7a: tắt API rồi chạy client](images/10-client-api-off.png)
+
+![Ca 7b: chạy client với cổng sai 5999](images/09-client-wrong-port.png)
 
 ### Bước 8: `requests.http`
 
