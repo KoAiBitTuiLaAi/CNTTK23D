@@ -92,3 +92,31 @@ sealed class PingHub : Hub
 ```
 
 Giải thích: mỗi phương thức `public` của hub là một "điểm cuối thời gian thực" mà máy khách gọi bằng `InvokeAsync("Echo", ...)`. Mẫu câu gửi `Clients.Caller.SendAsync("EchoResponse", dữ liệu)` = tập máy khách → ai nhận (`Caller` = chỉ kết nối vừa gọi) → gửi đi → TÊN thông điệp → nội dung. Hub chưa test được bằng curl vì cần máy khách SignalR, bước 4 viết máy khách.
+
+### Bước 4: máy khách `HubConnectionBuilder` → `On` → `StartAsync` → `InvokeAsync`
+
+![buoc4-echo](anh/buoc4-echo.png)
+
+Terminal 2 – máy khách (Terminal 1 vẫn chạy máy chủ cổng 5200):
+
+```text
+> dotnet run --project src/Ping.Client -- http://localhost:5200 An
+An da ket noi den PingApi.
+[Echo] Echo: Xin chao SignalR tu An
+Dang cho thong diep... Nhan Enter de thoat.
+```
+
+Thấy: dòng `[Echo] Echo: Xin chao SignalR tu An`.
+Giải thích: `WithUrl` nhận URL đầy đủ của hub (khớp `MapHub`), `On<string>("EchoResponse", ...)` đăng ký "khi có thông điệp tên EchoResponse thì chạy hàm này", `StartAsync()` gọi negotiate và mở WebSocket, sau đó `InvokeAsync("Echo", ...)` gọi hub và chờ hub chạy xong. Máy chủ gửi `EchoResponse` về trên CÙNG kết nối nên hàm `On` in ra dòng `[Echo]` – hai chiều trên một kết nối. `Console.ReadLine()` giữ chương trình sống để nhận tiếp thông điệp ở các bước sau.
+
+Nhiệm vụ "tên phải khớp từng chữ" – thử sai chiều lên (`InvokeAsync("Ech0", ...)`), chạy rồi sửa lại:
+
+![buoc4-sai-ten](anh/buoc4-sai-ten.png)
+
+```text
+An da ket noi den PingApi.
+Unhandled exception. Microsoft.AspNetCore.SignalR.HubException: Failed to invoke 'Ech0' due to an error on the server.
+HubException: Method does not exist.
+```
+
+Sai tên chiều lên (máy khách → hub) báo lỗi ngay, chương trình dừng nên dễ phát hiện. Sai tên chiều xuống (`On("EchoRespone")`) thì im lặng – xem thí nghiệm 3 ở bước 7.
