@@ -52,7 +52,7 @@ connection.On<SubmissionStatusMessage>("SubmissionStatusChanged", m =>
 await connection.StartAsync();
 Console.WriteLine("Da ket noi SignalR.");
 
-// ① REST: lấy danh sách bài tập, chọn bài đầu tiên còn mở
+// (1) REST: lấy danh sách bài tập, chọn bài đầu tiên còn mở
 var assignments = await http.GetFromJsonAsync<List<AssignmentDto>>("/api/assignments");
 var selected = assignments?.FirstOrDefault(a => a.IsOpen);
 if (selected is null)
@@ -95,7 +95,7 @@ if (twoSubmissions)
     return;
 }
 
-// ② REST: tạo lượt nộp – kiểm tra mã 201 TRƯỚC khi đọc body
+// (2) REST: tạo lượt nộp – kiểm tra mã 201 TRƯỚC khi đọc body
 var createdOne = await CreateSubmissionAsync(selected.Id, studentCode, repositoryUrl);
 if (createdOne is null)
 {
@@ -107,16 +107,16 @@ bells[createdOne.Id] = gradedNotification;
 Console.WriteLine($"Da tao luot nop: {createdOne.Id}");
 Console.WriteLine($"Trang thai REST ban dau: {createdOne.Status}");
 
-// ③ SignalR: vào nhóm submission:{id} – chỉ gọi được khi đã có id từ POST
+// (3) SignalR: vào nhóm submission:{id} – chỉ gọi được khi đã có id từ POST
 await connection.InvokeAsync("WatchSubmission", createdOne.Id.ToString());
 Console.WriteLine("Dang cho thong bao trang thai tu may chu...");
 
-// ④ Chờ cái nào xong trước: chuông (graded/failed) hay đồng hồ 10 giây
+// (4) Chờ cái nào xong trước: chuông (graded/failed) hay đồng hồ 10 giây
 var completed = await Task.WhenAny(gradedNotification.Task, Task.Delay(TimeSpan.FromSeconds(10)));
 if (completed != gradedNotification.Task)
     Console.WriteLine("Qua thoi gian cho thong bao graded.");
 
-// ⑤ REST: đọc lại – trạng thái cuối luôn lấy từ nguồn sự thật
+// (5) REST: đọc lại – trạng thái cuối luôn lấy từ nguồn sự thật
 var latest = await http.GetFromJsonAsync<SubmissionDto>($"/api/submissions/{createdOne.Id}");
 Console.WriteLine($"Trang thai doc lai bang REST: {latest?.Status}");
 

@@ -300,7 +300,7 @@ Dang cho thong diep... Nhan Enter de thoat.
 | 3 | `On("EchoRespone")` | không in `[Echo]`, không báo lỗi | Đúng: không lỗi, không có dòng `[Echo]` | Sai tên chiều xuống thì im lặng – hub vẫn gửi `EchoResponse` nhưng không có hàm nào nghe tên đó. Không nhận được gì thì so tên hai phía trước tiên |
 | 4 | `InvokeAsync("Ech0")` (bước 4) | lỗi | `HubException: Method does not exist` | Sai tên chiều lên báo lỗi ngay, dễ phát hiện |
 
-**Tổng hợp PingSignalR** – bốn trụ cột: ① `AddSignalR` + `MapHub` ở máy chủ; ② phương thức hub gửi bằng `Clients.X.SendAsync`; ③ `HubConnectionBuilder` + `On` + `StartAsync` ở máy khách; ④ chọn đúng phạm vi người nhận (`Caller`, `All`, `Group`, `Client(id)`).
+**Tổng hợp PingSignalR** – bốn trụ cột: (1) `AddSignalR` + `MapHub` ở máy chủ; (2) phương thức hub gửi bằng `Clients.X.SendAsync`; (3) `HubConnectionBuilder` + `On` + `StartAsync` ở máy khách; (4) chọn đúng phạm vi người nhận (`Caller`, `All`, `Group`, `Client(id)`).
 
 ---
 
@@ -310,10 +310,10 @@ Thiết kế kênh thời gian thực – trả lời 4 câu hỏi khung trướ
 
 | Câu hỏi | Trả lời | Thành code |
 |---|---|---|
-| ① Sự kiện nào? | Trạng thái lượt nộp đổi: `received → processing → graded` | `UpdateStatusAsync(id, status, ...)` |
-| ② Gửi cho ai? | Chỉ máy khách đang theo dõi đúng lượt nộp đó | `Clients.Group("submission:{id}")` |
-| ③ Gửi kèm gì? | Mã lượt nộp, trạng thái mới, thời điểm đổi (tối thiểu) | `record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt)` |
-| ④ Mất kết nối thì sao? | Gọi lại REST `GET /api/submissions/{id}` – REST là nguồn sự thật | `http.GetFromJsonAsync<SubmissionDto>(...)` |
+| 1. Sự kiện nào? | Trạng thái lượt nộp đổi: `received → processing → graded` | `UpdateStatusAsync(id, status, ...)` |
+| 2. Gửi cho ai? | Chỉ máy khách đang theo dõi đúng lượt nộp đó | `Clients.Group("submission:{id}")` |
+| 3. Gửi kèm gì? | Mã lượt nộp, trạng thái mới, thời điểm đổi (tối thiểu) | `record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt)` |
+| 4. Mất kết nối thì sao? | Gọi lại REST `GET /api/submissions/{id}` – REST là nguồn sự thật | `http.GetFromJsonAsync<SubmissionDto>(...)` |
 
 ### Bước 1: tạo solution mới với hai project, thêm gói cho máy khách
 
@@ -414,7 +414,7 @@ Nhóm do MÁY CHỦ quản lý, máy khách không tự lọc.
 
 - Endpoint POST nhận thêm tham số `IHubContext<SubmissionHub> hubContext` (ASP.NET Core tự đưa vào qua DI), tạo lượt nộp `received` rồi gọi `_ = SimulateGradingAsync(...)` **không await** → trả 201 ngay.
 - `SimulateGradingAsync`: `Task.Delay(1s)` → `processing`, `Task.Delay(2s)` → `graded`.
-- `UpdateStatusAsync`: ① cập nhật danh sách trong `lock` (record bất biến nên dùng `with { Status, UpdatedAt }`) → ② tạo `SubmissionStatusMessage(Id, Status, UpdatedAt)` chỉ 3 trường → ③ `hub.Clients.Group("submission:{id}").SendAsync("SubmissionStatusChanged", msg)`. Lưu trước, đẩy sau: ai nhận tin rồi đọc REST đều thấy đúng.
+- `UpdateStatusAsync`: (1) cập nhật danh sách trong `lock` (record bất biến nên dùng `with { Status, UpdatedAt }`) → (2) tạo `SubmissionStatusMessage(Id, Status, UpdatedAt)` chỉ 3 trường → (3) `hub.Clients.Group("submission:{id}").SendAsync("SubmissionStatusChanged", msg)`. Lưu trước, đẩy sau: ai nhận tin rồi đọc REST đều thấy đúng.
 
 Kiểm tra chưa cần máy khách – REST đã thấy trạng thái đổi dần:
 
@@ -473,7 +473,7 @@ Giải thích: một URL gốc `http://localhost:5000` dùng cho cả REST (`Bas
 
 ![edusubmit-buoc6-client](anh/edusubmit-buoc6-client.png)
 
-Trình tự trong máy khách: ① `GET /api/assignments` → ② `POST .../submissions` (kiểm tra 201 trước khi đọc body, lỗi thì in `ApiError`) → ③ `InvokeAsync("WatchSubmission", created.Id)` → ④ `Task.WhenAny(chuông graded, Task.Delay(10s))` → ⑤ `GET /api/submissions/{id}`.
+Trình tự trong máy khách: (1) `GET /api/assignments` → (2) `POST .../submissions` (kiểm tra 201 trước khi đọc body, lỗi thì in `ApiError`) → (3) `InvokeAsync("WatchSubmission", created.Id)` → (4) `Task.WhenAny(chuông graded, Task.Delay(10s))` → (5) `GET /api/submissions/{id}`.
 
 Terminal 2 – máy khách (kết quả máy khách 8 dòng):
 
@@ -620,7 +620,7 @@ Kết quả: **đạt 15/15 lần gọi**. Bảng này bao trùm cả 7 yêu c�
 
 - Máy chủ (`SimulateGradingAsync`): `repositoryUrl` không bắt đầu bằng `https://` thì trạng thái cuối là `failed` thay vì `graded`.
 - Máy khách: nhận `failed` thì in `!!! CANH BAO: ... cham LOI (failed)` màu đỏ; chuông cũng reo với `failed` (đều là trạng thái cuối) nên không phải chờ hết 10 giây.
-- Câu hỏi khung bị ảnh hưởng: **①** (sự kiện có thêm nhánh `processing → failed`) và **③** (giá trị `Status` trong thông điệp có thêm `failed`). Câu ② (nhóm) và ④ (đọc lại bằng REST) giữ nguyên.
+- Câu hỏi khung bị ảnh hưởng: **câu 1** (sự kiện có thêm nhánh `processing → failed`) và **câu 3** (giá trị `Status` trong thông điệp có thêm `failed`). Câu 2 (nhóm) và câu 4 (đọc lại bằng REST) giữ nguyên.
 
 ```text
 > dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV003 http://example.com/sv003
@@ -654,7 +654,7 @@ SV001: SignalR = graded, REST = graded
 SV002: SignalR = failed, REST = failed
 ```
 
-Chứng minh không trộn lẫn: mỗi thông điệp mang `SubmissionId` riêng; trạng thái cuối nhận qua SignalR của từng lượt nộp khớp đúng trạng thái đọc lại bằng REST (`graded` ↔ `graded`, `failed` ↔ `failed`).
+Chứng minh không trộn lẫn: mỗi thông điệp mang `SubmissionId` riêng; trạng thái cuối nhận qua SignalR của từng lượt nộp khớp đúng trạng thái đọc lại bằng REST (`graded` = `graded`, `failed` = `failed`).
 
 **Bài tập 4 – chạy máy khách khi API tắt:** chính là TN2 ở bước 7: `HttpRequestException ... actively refused (localhost:5000)` ngay ở `StartAsync`. Lần nối đầu không tự thử lại; `WithAutomaticReconnect` chỉ cứu kết nối đã mở. Muốn chịu được API khởi động muộn thì phải tự viết vòng lặp thử lại quanh `StartAsync` (ví dụ thử lại sau 2, 5, 10 giây).
 
@@ -676,7 +676,7 @@ Chứng minh không trộn lẫn: mỗi thông điệp mang `SubmissionId` riên
 | Câu hỏi | Trả lời ngắn |
 |---|---|
 | Polling khác push ở số yêu cầu và độ trễ? | Polling: máy khách hỏi theo chu kỳ, phần lớn yêu cầu thừa, trễ tới 1 chu kỳ. Push: máy chủ gửi đúng lúc có sự kiện, không thừa, gần như tức thì |
-| Phân biệt 3 MEP | Yêu cầu–phản hồi: máy khách khởi tạo, 1 yêu cầu ↔ 1 phản hồi. Đẩy: máy chủ khởi tạo khi có sự kiện, từng thông điệp lẻ. Truyền luồng: một/hai phía, chuỗi nhiều thông điệp liên tục |
+| Phân biệt 3 MEP | Yêu cầu–phản hồi: máy khách khởi tạo, 1 yêu cầu, 1 phản hồi. Đẩy: máy chủ khởi tạo khi có sự kiện, từng thông điệp lẻ. Truyền luồng: một/hai phía, chuỗi nhiều thông điệp liên tục |
 | WebSocket, SignalR: giao thức hay thư viện? | WebSocket là GIAO THỨC (kênh hai chiều sau bắt tay HTTP `101 Switching Protocols`). SignalR là THƯ VIỆN cấp cao của ASP.NET Core: hub, nhóm, kết nối lại, chọn truyền tải |
 | SignalR có những truyền tải dự phòng nào? | WebSockets (ưu tiên 1) → Server-Sent Events (2) → Long Polling (3); thấy trong `availableTransports` của negotiate |
 | Vì sao nhóm `submission:{id}` thay vì gửi tất cả? | Riêng tư (không lộ trạng thái bài người khác) và băng thông (200 thay vì 20.000 thông điệp) |
@@ -698,12 +698,12 @@ Chứng minh không trộn lẫn: mỗi thông điệp mang `SubmissionId` riên
 
 | Yêu cầu | Đạt? |
 |---|---|
-| `dotnet build` cả 2 solution: 0 Error(s) (4 project) | ☑ |
-| Không commit `bin/`, `obj/` (mỗi solution có `.gitignore`; `git ls-files` không có bin/obj) | ☑ |
-| `requests.http` đủ 9 ca trở lên (14 ca, có 200, 201, 400, 404, negotiate) | ☑ |
-| README: kết quả máy khách 8 dòng (bước 6) | ☑ |
-| README: 5 thí nghiệm (dự đoán + kết quả thật + giải thích) – bước 7 | ☑ |
-| README: trả lời 3 câu hỏi đầu giờ | ☑ |
-| Mỗi bước ≥ 1 commit, mỗi bước có ảnh trong `anh/` | ☑ |
-| Máy khách EduSubmit tự thoát sau khi nhận graded; cổng cố định 5000 và 5200 qua `--urls` | ☑ |
+| `dotnet build` cả 2 solution: 0 Error(s) (4 project) | Đạt |
+| Không commit `bin/`, `obj/` (mỗi solution có `.gitignore`; `git ls-files` không có bin/obj) | Đạt |
+| `requests.http` đủ 9 ca trở lên (14 ca, có 200, 201, 400, 404, negotiate) | Đạt |
+| README: kết quả máy khách 8 dòng (bước 6) | Đạt |
+| README: 5 thí nghiệm (dự đoán + kết quả thật + giải thích) – bước 7 | Đạt |
+| README: trả lời 3 câu hỏi đầu giờ | Đạt |
+| Mỗi bước ≥ 1 commit, mỗi bước có ảnh trong `anh/` | Đạt |
+| Máy khách EduSubmit tự thoát sau khi nhận graded; cổng cố định 5000 và 5200 qua `--urls` | Đạt |
 | PR tiêu đề `Bai3 - dtc245200730 - Đỗ Trọng Dũng`, chỉ sửa thư mục của mình | khi mở PR |

@@ -110,7 +110,7 @@ static async Task UpdateStatusAsync(Guid id, string status,
     List<SubmissionDto> list, object gate, IHubContext<SubmissionHub> hub)
 {
     SubmissionDto? updated = null;
-    lock (gate)                                            // ① cập nhật dữ liệu (nguồn sự thật)
+    lock (gate)                                            // (1) cập nhật dữ liệu (nguồn sự thật)
     {
         var i = list.FindIndex(s => s.Id == id);
         if (i >= 0)
@@ -121,9 +121,9 @@ static async Task UpdateStatusAsync(Guid id, string status,
     }
     if (updated is null) return;
 
-    var msg = new SubmissionStatusMessage(updated.Id, updated.Status, updated.UpdatedAt); // ② dữ liệu tối thiểu
+    var msg = new SubmissionStatusMessage(updated.Id, updated.Status, updated.UpdatedAt); // (2) dữ liệu tối thiểu
     var group = SubmissionGroups.ForSubmission(id);
-    await hub.Clients.Group(group).SendAsync("SubmissionStatusChanged", msg);            // ③ đẩy đúng nhóm
+    await hub.Clients.Group(group).SendAsync("SubmissionStatusChanged", msg);            // (3) đẩy đúng nhóm
     Console.WriteLine($"[Push] {group} -> {status}");
 }
 

@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.SignalR.Client;
 var serverUrl = args.Length > 0 ? args[0].TrimEnd('/') : "http://localhost:5200";
 var name = args.Length > 1 ? args[1] : "Client";
 
-// ① Xây dựng kết nối tới hub
+// (1) Xây dựng kết nối tới hub
 await using var connection = new HubConnectionBuilder()
     .WithUrl($"{serverUrl}/hubs/ping")
     .WithAutomaticReconnect()
     .Build();
 
-// ② Đăng ký hàm xử lý cho từng TÊN thông điệp (trước StartAsync)
+// (2) Đăng ký hàm xử lý cho từng TÊN thông điệp (trước StartAsync)
 connection.On<string>("EchoResponse",
     msg => Console.WriteLine($"[Echo] {msg}"));
 connection.On<string>("BroadcastMessage",
@@ -38,14 +38,14 @@ connection.Closed += _ =>
     return Task.CompletedTask;
 };
 
-// ③ Mở kết nối: negotiate + chọn WebSocket
+// (3) Mở kết nối: negotiate + chọn WebSocket
 await connection.StartAsync();
 Console.WriteLine($"{name} da ket noi den PingApi. ConnectionId: {connection.ConnectionId?[..8]}");
 
-// ④ Gọi phương thức Echo trên hub
+// (4) Gọi phương thức Echo trên hub
 await connection.InvokeAsync("Echo", $"Xin chao SignalR tu {name}");
 
-// ⑤ Vào nhóm, gửi cho nhóm, rồi phát rộng cho tất cả
+// (5) Vào nhóm, gửi cho nhóm, rồi phát rộng cho tất cả
 await connection.InvokeAsync("JoinGroup", "lop-hoc-01");
 await connection.InvokeAsync("SendToGroup", "lop-hoc-01", $"Thong bao nhom tu {name}");
 await connection.InvokeAsync("Broadcast", $"Xin chao tat ca tu {name}");
