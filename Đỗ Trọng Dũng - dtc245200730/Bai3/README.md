@@ -408,3 +408,28 @@ Terminal 1 – máy chủ:
 
 Thấy: ba lần GET đúng thứ tự `received → processing → graded`, `updatedAt` tăng dần (cách ~1 s rồi ~2 s).
 Giải thích: không truyền được đối tượng hub vào tác vụ nền vì hub chỉ sống trong MỘT lời gọi; ngoài hub phải dùng `IHubContext` (trong hub: `Clients`, ngoài hub: `hubContext.Clients`, cùng phạm vi All/Group…). REST luôn biết trạng thái đúng; SignalR chỉ giúp máy khách biết SỚM hơn mà không phải hỏi. Hệ thật sẽ thay `Task.Delay` bằng hàng đợi + worker (Bài 6), cách đẩy về giữ nguyên.
+
+### Bước 5: máy khách mở hai kênh và gắn "chuông" chờ `graded`
+
+![edusubmit-buoc5-ketnoi](anh/edusubmit-buoc5-ketnoi.png)
+
+```csharp
+using var http = new HttpClient { BaseAddress = new Uri(apiBaseUrl) };            // Kênh 1: REST
+await using var connection = new HubConnectionBuilder()                           // Kênh 2: SignalR
+    .WithUrl($"{apiBaseUrl}/hubs/submissions").WithAutomaticReconnect().Build();
+
+var gradedNotification = new TaskCompletionSource();                              // "cái chuông"
+connection.On<SubmissionStatusMessage>("SubmissionStatusChanged", m => {
+    Console.WriteLine($"Thong bao SignalR: {m.SubmissionId} -> {m.Status} luc {m.UpdatedAt.ToLocalTime():HH:mm:ss}");
+    if (m.Status == "graded") gradedNotification.TrySetResult();
+});
+await connection.StartAsync();
+Console.WriteLine("Da ket noi SignalR.");
+```
+
+```text
+> dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV001
+Da ket noi SignalR.
+```
+
+Giải thích: một URL gốc `http://localhost:5000` dùng cho cả REST (`BaseAddress`) và hub (`/hubs/submissions`). `On<SubmissionStatusMessage>` để SignalR tự chuyển JSON thành record – record khai báo giống máy chủ ở cuối tệp (`AssignmentDto`, `CreateSubmissionRequest`, `SubmissionDto`, `SubmissionStatusMessage`, `ApiError`). `TaskCompletionSource` là một Task "bấm tay": hoàn tất khi gọi `TrySetResult`, dùng để chờ một sự kiện.
