@@ -219,3 +219,50 @@ Giải thích:
 - Nhóm gắn với ConnectionId cũ nên bị mất; muốn ở lại nhóm phải gọi `JoinGroup` lại trong `Reconnected`.
 - Tin gửi lúc đang rớt là mất hẳn – SignalR không lưu tin để gửi lại.
 - `override` ghi đè hàm có sẵn của lớp `Hub`, nhớ gọi `base.` ở cuối.
+
+### Bước 7: ba thí nghiệm lỗi (chạy thật rồi sửa lại cho đúng)
+
+**Lỗi 1 – máy chủ chưa chạy** (chạy máy khách khi Terminal 1 đã tắt):
+
+![buoc7-loi1](anh/buoc7-loi1.png)
+
+```text
+Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine
+actively refused it. (localhost:5200)
+ ---> System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
+```
+
+**Lỗi 2 – sai đường dẫn hub** (`WithUrl($"{serverUrl}/hub/ping")`, thiếu chữ `s`):
+
+![buoc7-loi2](anh/buoc7-loi2.png)
+
+```text
+Unhandled exception. System.Net.Http.HttpRequestException: Response status code does not indicate success: 404 (Not Found).
+   at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   at Microsoft.AspNetCore.Http.Connections.Client.HttpConnection.NegotiateAsync(...)
+```
+
+**Lỗi 3 – sai tên thông điệp** (`On<string>("EchoRespone", ...)`):
+
+![buoc7-loi3](anh/buoc7-loi3.png)
+
+```text
+An da ket noi den PingApi. ConnectionId: TZG_0VT3
+[System] Client TZG_0VT3 da ket noi.
+[Group] TZG_0VT3 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+[Lifecycle] Ket noi da dong.
+```
+
+(không có lỗi nào, chỉ là KHÔNG có dòng `[Echo]`)
+
+| # | Thí nghiệm | Dự đoán | Kết quả thật | Giải thích |
+|---|---|---|---|---|
+| 1 | Máy chủ chưa chạy | `StartAsync` báo lỗi kết nối | `HttpRequestException`: actively refused (localhost:5200) | `StartAsync` ném lỗi ngay ở lần nối đầu; `WithAutomaticReconnect` chỉ cứu kết nối ĐÃ mở |
+| 2 | `WithUrl` sai `/hub/ping` | lỗi 404 | `HttpRequestException ... 404 (Not Found)` tại `NegotiateAsync` | Lỗi xảy ra ở bước negotiate: đường dẫn phải khớp `MapHub("/hubs/ping")` |
+| 3 | `On("EchoRespone")` | không in `[Echo]`, không báo lỗi | Đúng: không lỗi, không có dòng `[Echo]` | Sai tên chiều xuống thì im lặng – hub vẫn gửi `EchoResponse` nhưng không có hàm nào nghe tên đó. Không nhận được gì thì so tên hai phía trước tiên |
+| 4 | `InvokeAsync("Ech0")` (bước 4) | lỗi | `HubException: Method does not exist` | Sai tên chiều lên báo lỗi ngay, dễ phát hiện |
+
+**Tổng hợp PingSignalR** – bốn trụ cột: ① `AddSignalR` + `MapHub` ở máy chủ; ② phương thức hub gửi bằng `Clients.X.SendAsync`; ③ `HubConnectionBuilder` + `On` + `StartAsync` ở máy khách; ④ chọn đúng phạm vi người nhận (`Caller`, `All`, `Group`, `Client(id)`).
