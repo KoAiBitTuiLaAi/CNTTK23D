@@ -1,0 +1,45 @@
+﻿@api = http://localhost:5100
+
+### 1. API đang chạy — 200
+GET {{api}}/
+
+### 2. Danh sách sản phẩm — 200
+GET {{api}}/api/products
+
+### 3. Sản phẩm số 1 — 200
+GET {{api}}/api/products/1
+
+### 4. Không có sản phẩm 999 — 404 kèm ApiError
+GET {{api}}/api/products/999
+
+### 5. ID không phải số — 404 rỗng
+GET {{api}}/api/products/abc
+
+### 6. Tạo sản phẩm hợp lệ — 201 kèm Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Giá âm — 400 kèm ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "Thu gia am",
+  "price": -1
+}
+
+### 8. Thiếu Content-Type — 415
+POST {{api}}/api/products
+
+{
+  "name": "Thieu header",
+  "description": "Thu loi 415",
+  "price": 10000
+}

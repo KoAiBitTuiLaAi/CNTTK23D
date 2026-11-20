@@ -1,0 +1,33 @@
+@api = http://localhost:5100
+
+### Kiểm tra máy chủ — 200 OK
+GET {{api}}/
+
+### Danh sách sản phẩm — 200 OK
+GET {{api}}/api/products
+
+### Sản phẩm có ID 1 — 200 OK
+GET {{api}}/api/products/1
+
+### Sản phẩm không tồn tại — 404 PRODUCT_NOT_FOUND
+GET {{api}}/api/products/999
+
+### ID không phải số — 404, body rỗng
+GET {{api}}/api/products/abc
+
+### Tạo sản phẩm hợp lệ — 201 Created và Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
+
+### Giá không hợp lệ — 400 INVALID_PRODUCT
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "San pham loi", "description": "", "price": -1 }
+
+### Thiếu Content-Type JSON — 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
