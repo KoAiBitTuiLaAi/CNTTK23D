@@ -68,3 +68,27 @@ Connection ID required
 
 Thấy: negotiate trả `connectionId` và đủ 3 cơ chế truyền tải `WebSockets`, `ServerSentEvents`, `LongPolling`.
 Giải thích: `AddSignalR()` đăng ký dịch vụ lõi (quản lý kết nối, nhóm, JSON hub protocol), `MapHub<PingHub>("/hubs/ping")` mở điểm cuối hub. Bước negotiate là bắt tay đầu tiên: máy chủ cấp mã kết nối và báo các cách truyền tải theo thứ tự ưu tiên. Gọi thẳng `GET /hubs/ping` bị 400 vì hub không trả lời như REST, phải có ConnectionId. Endpoint REST `GET /` vẫn chạy song song với hub.
+
+### Bước 3: phương thức hub `Echo` trả lời riêng người gọi
+
+![buoc3-chay](anh/buoc3-chay.png)
+
+```csharp
+sealed class PingHub : Hub
+{
+    public async Task Echo(string message)
+    {
+        await Clients.Caller.SendAsync("EchoResponse", $"Echo: {message}");
+    }
+}
+```
+
+```text
+> dotnet build
+    0 Warning(s)
+    0 Error(s)
+> dotnet run --project src/Ping.Api --urls http://localhost:5200
+      Now listening on: http://localhost:5200
+```
+
+Giải thích: mỗi phương thức `public` của hub là một "điểm cuối thời gian thực" mà máy khách gọi bằng `InvokeAsync("Echo", ...)`. Mẫu câu gửi `Clients.Caller.SendAsync("EchoResponse", dữ liệu)` = tập máy khách → ai nhận (`Caller` = chỉ kết nối vừa gọi) → gửi đi → TÊN thông điệp → nội dung. Hub chưa test được bằng curl vì cần máy khách SignalR, bước 4 viết máy khách.
