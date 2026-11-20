@@ -266,3 +266,40 @@ Dang cho thong diep... Nhan Enter de thoat.
 | 4 | `InvokeAsync("Ech0")` (bước 4) | lỗi | `HubException: Method does not exist` | Sai tên chiều lên báo lỗi ngay, dễ phát hiện |
 
 **Tổng hợp PingSignalR** – bốn trụ cột: ① `AddSignalR` + `MapHub` ở máy chủ; ② phương thức hub gửi bằng `Clients.X.SendAsync`; ③ `HubConnectionBuilder` + `On` + `StartAsync` ở máy khách; ④ chọn đúng phạm vi người nhận (`Caller`, `All`, `Group`, `Client(id)`).
+
+---
+
+## Phần 2 – EduSubmit realtime (`RealtimeSubmissionSystem`)
+
+Thiết kế kênh thời gian thực – trả lời 4 câu hỏi khung trước khi code:
+
+| Câu hỏi | Trả lời | Thành code |
+|---|---|---|
+| ① Sự kiện nào? | Trạng thái lượt nộp đổi: `received → processing → graded` | `UpdateStatusAsync(id, status, ...)` |
+| ② Gửi cho ai? | Chỉ máy khách đang theo dõi đúng lượt nộp đó | `Clients.Group("submission:{id}")` |
+| ③ Gửi kèm gì? | Mã lượt nộp, trạng thái mới, thời điểm đổi (tối thiểu) | `record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt)` |
+| ④ Mất kết nối thì sao? | Gọi lại REST `GET /api/submissions/{id}` – REST là nguồn sự thật | `http.GetFromJsonAsync<SubmissionDto>(...)` |
+
+### Bước 1: tạo solution mới với hai project, thêm gói cho máy khách
+
+![edusubmit-buoc1-build](anh/edusubmit-buoc1-build.png)
+
+```powershell
+mkdir RealtimeSubmissionSystem; cd RealtimeSubmissionSystem
+dotnet new sln -n RealtimeSubmissionSystem
+dotnet new web -n Submission.RealtimeApi -o src/Submission.RealtimeApi
+dotnet new console -n Submission.RealtimeClient -o src/Submission.RealtimeClient
+dotnet sln add src/Submission.RealtimeApi/Submission.RealtimeApi.csproj
+dotnet sln add src/Submission.RealtimeClient/Submission.RealtimeClient.csproj
+dotnet add src/Submission.RealtimeClient package Microsoft.AspNetCore.SignalR.Client --version 10.0.15
+dotnet new gitignore
+dotnet build
+```
+
+```text
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+```
+
+Thấy: build 0 lỗi. `Submission.RealtimeApi` = REST Bài 2 + hub (template web, cổng 5000 như Bài 2); `Submission.RealtimeClient` = `HttpClient` + `HubConnection` (template console + gói SignalR Client). Cùng khuôn 9 lệnh như PingSignalR, chỉ khác tên.
