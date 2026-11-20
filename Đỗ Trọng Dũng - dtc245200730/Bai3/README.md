@@ -467,3 +467,87 @@ Thấy: 2 dòng `Thong bao SignalR` cách nhau 2 giây – hai cập nhật đ�
 Giải thích: dòng "Chon bai tap / Da tao luot nop / Trang thai REST ban dau" là REST; hai dòng "Thong bao SignalR" là push qua nhóm `submission:{id}`; dòng cuối quay về REST vì **REST là nguồn sự thật** – tin đẩy có thể lỡ, trạng thái cuối luôn đọc lại bằng GET.
 
 Trật tự đúng: **nghe (`On`) → nối (`StartAsync`) → tạo (`POST`) → theo dõi (`Watch(id)`) → đọc lại (`GET`)**. Không nhận được thông báo thì kiểm tra lần lượt: 1. cổng/URL, 2. đường dẫn hub khớp `MapHub`, 3. `WatchSubmission` gọi SAU POST với đúng `created.Id`, 4. tên `"SubmissionStatusChanged"` giống nhau ở `SendAsync` và `On`.
+
+### Bước 7: năm thí nghiệm phân tán (ghi dự đoán trước, chạy thật sau)
+
+Mỗi thí nghiệm sửa tạm máy khách, chạy, ghi kết quả rồi hoàn nguyên code.
+
+**TN1 – hai máy khách SV001 và SV002 chạy cùng lúc**
+
+![edusubmit-buoc7-tn1](anh/edusubmit-buoc7-tn1.png)
+
+```text
+--- SV001
+Da tao luot nop: 312070eb-6c1d-480a-b590-1ddf0b7ebc0e
+Thong bao SignalR: 312070eb-6c1d-480a-b590-1ddf0b7ebc0e -> processing luc 08:33:15
+Thong bao SignalR: 312070eb-6c1d-480a-b590-1ddf0b7ebc0e -> graded luc 08:33:17
+Trang thai doc lai bang REST: graded
+--- SV002
+Da tao luot nop: fdbc21a7-bd88-4124-9cf8-f66589418c5c
+Thong bao SignalR: fdbc21a7-bd88-4124-9cf8-f66589418c5c -> processing luc 08:33:15
+Thong bao SignalR: fdbc21a7-bd88-4124-9cf8-f66589418c5c -> graded luc 08:33:17
+Trang thai doc lai bang REST: graded
+--- máy chủ
+[Hub] -BaTpbpn theo doi submission:312070eb-6c1d-480a-b590-1ddf0b7ebc0e
+[Hub] 7ES2fQp9 theo doi submission:fdbc21a7-bd88-4124-9cf8-f66589418c5c
+[Push] submission:312070eb-... -> processing
+[Push] submission:fdbc21a7-... -> processing
+[Push] submission:fdbc21a7-... -> graded
+[Push] submission:312070eb-... -> graded
+```
+
+**TN2 – chạy máy khách khi máy chủ chưa chạy**
+
+![edusubmit-buoc7-tn2](anh/edusubmit-buoc7-tn2.png)
+
+```text
+Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine
+actively refused it. (localhost:5000)
+```
+
+**TN3 – sửa `WithUrl` thành `/hub/submissions`**
+
+![edusubmit-buoc7-tn3](anh/edusubmit-buoc7-tn3.png)
+
+```text
+Unhandled exception. System.Net.Http.HttpRequestException: Response status code does not indicate success: 404 (Not Found).
+   at Microsoft.AspNetCore.Http.Connections.Client.HttpConnection.NegotiateAsync(...)
+```
+
+**TN4 – sửa `On("SubmissionStatusChanged")` thành `On("SubmissionStatusChange")`** (chạy mất 10,9 giây)
+
+![edusubmit-buoc7-tn4](anh/edusubmit-buoc7-tn4.png)
+
+```text
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: da6be1b8-987c-493b-9f35-2a66f3dfd9ed
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Qua thoi gian cho thong bao graded.
+Trang thai doc lai bang REST: graded
+```
+
+**TN5 – chờ 4 giây rồi mới gọi `WatchSubmission`** (chạy mất 14,9 giây)
+
+![edusubmit-buoc7-tn5](anh/edusubmit-buoc7-tn5.png)
+
+```text
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: f99a6b6b-20ed-49f5-9107-4723abc667ed
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Qua thoi gian cho thong bao graded.
+Trang thai doc lai bang REST: graded
+```
+
+| # | Thí nghiệm | Dự đoán | Kết quả thật | Giải thích |
+|---|---|---|---|---|
+| 1 | Hai máy khách SV001, SV002 cùng lúc | Mỗi bên chỉ thấy lượt nộp của mình | Đúng: SV001 chỉ nhận tin `312070eb`, SV002 chỉ nhận `fdbc21a7` | Nhóm `submission:{id}` tách người nhận; máy chủ gửi theo nhóm nên không trộn tin, không lộ dữ liệu |
+| 2 | Máy chủ chưa chạy | Lỗi kết nối ngay | `HttpRequestException: ... actively refused (localhost:5000)` | `StartAsync` ném lỗi ở lần nối đầu, không tự thử lại; `WithAutomaticReconnect` chỉ áp dụng cho kết nối đã mở |
+| 3 | `WithUrl` sai `/hub/submissions` | Lỗi 404 | `HttpRequestException ... 404 (Not Found)` tại `NegotiateAsync` | Lỗi xảy ra ở bước negotiate; đường dẫn phải khớp `MapHub("/hubs/submissions")` |
+| 4 | Sai tên `On("SubmissionStatusChange")` | Không lỗi, không có dòng "Thong bao SignalR" | Đúng: không lỗi; sau 10 giây in `Qua thoi gian cho thong bao graded.`; REST vẫn đọc ra `graded` | Sai tên chiều xuống thì im lặng – máy chủ vẫn gửi nhưng không hàm nào nghe. Đồng hồ 10 giây + REST cứu được kết quả |
+| 5 | Chờ 4 giây rồi mới `WatchSubmission` | Lỡ hết tin vì bài đã chấm xong trước khi vào nhóm | Đúng: không nhận tin nào, hết 10 giây chờ; REST đọc lại: `graded` | Vào nhóm muộn là lỡ tin (SignalR không lưu tin cũ). Thiết kế đúng = push để nhanh + REST để chắc |
+
+Bài học: thông điệp thời gian thực có thể bị lỡ (sai tên, vào nhóm muộn, đứt mạng), nên luôn chốt trạng thái bằng `GET /api/submissions/{id}`.
