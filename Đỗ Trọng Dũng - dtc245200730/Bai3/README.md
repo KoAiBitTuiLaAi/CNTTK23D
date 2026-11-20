@@ -174,3 +174,48 @@ Thử thách 3 máy khách (An, Bình trong nhóm `lop-hoc-01`, Chi không ở n
 | Bình gọi `Broadcast("y")` | nhận | nhận | nhận | `Clients.All` |
 
 Chi gửi được vào nhóm nhưng chính Chi không nhận vì không phải thành viên – hub ví dụ không kiểm tra quyền.
+
+### Bước 6: vòng đời kết nối và tự kết nối lại
+
+![buoc6-noilai](anh/buoc6-noilai.png)
+
+Hub ghi đè `OnConnectedAsync` / `OnDisconnectedAsync` (in `[Hub] + ...`, `[Hub] - ...` và gửi `SystemMessage` cho mọi người). Máy khách thêm `On("SystemMessage")` và 3 sự kiện `Reconnecting`, `Reconnected`, `Closed`.
+
+Thí nghiệm: An đang chạy thì tắt máy chủ (Ctrl+C) rồi chạy lại ngay.
+
+Terminal 2 – An (kết quả chạy thật):
+
+```text
+An da ket noi den PingApi. ConnectionId: EsRid0Eo
+[System] Client EsRid0Eo da ket noi.
+[Echo] Echo: Xin chao SignalR tu An
+[Group] EsRid0Eo da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+# (Terminal 1: Ctrl+C tắt máy chủ, rồi chạy lại)
+[Lifecycle] Dang ket noi lai...
+[Lifecycle] Da ket noi lai: UBx58szm
+[System] Client UBx58szm da ket noi.
+# (nhấn Enter để thoát)
+[Lifecycle] Ket noi da dong.
+```
+
+Terminal 1 – máy chủ (lần chạy 1 rồi lần chạy 2):
+
+```text
+[Hub] + EsRid0Eo ket noi
+# Ctrl+C, dotnet run lại
+      Now listening on: http://localhost:5200
+[Hub] + UBx58szm ket noi
+[Hub] - UBx58szm ngat
+```
+
+Thấy: `[Lifecycle] Dang ket noi lai...` rồi `[Lifecycle] Da ket noi lai: UBx58szm` – ConnectionId khác ban đầu (`EsRid0Eo`).
+Giải thích:
+
+- `WithAutomaticReconnect()` mặc định thử lại sau 0 s, 2 s, 10 s, 30 s; hết 4 lần thì `Closed`. Ở đây máy chủ lên lại sau ~3 s nên nối lại được ở lần thử thứ 2–3.
+- Nối lại = kết nối MỚI: ConnectionId đổi, máy chủ chạy lại `OnConnectedAsync`.
+- Nhóm gắn với ConnectionId cũ nên bị mất; muốn ở lại nhóm phải gọi `JoinGroup` lại trong `Reconnected`.
+- Tin gửi lúc đang rớt là mất hẳn – SignalR không lưu tin để gửi lại.
+- `override` ghi đè hàm có sẵn của lớp `Hub`, nhớ gọi `base.` ở cuối.

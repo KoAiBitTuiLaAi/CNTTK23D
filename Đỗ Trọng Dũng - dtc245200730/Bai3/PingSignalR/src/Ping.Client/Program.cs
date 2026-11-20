@@ -18,6 +18,25 @@ connection.On<string>("BroadcastMessage",
     m => Console.WriteLine($"[Broadcast] {m}"));
 connection.On<string>("GroupMessage",
     m => Console.WriteLine($"[Group] {m}"));
+connection.On<string>("SystemMessage",
+    m => Console.WriteLine($"[System] {m}"));
+
+// Vòng đời kết nối phía máy khách
+connection.Reconnecting += _ =>
+{
+    Console.WriteLine("[Lifecycle] Dang ket noi lai...");
+    return Task.CompletedTask;
+};
+connection.Reconnected += newId =>
+{
+    Console.WriteLine($"[Lifecycle] Da ket noi lai: {newId?[..8]}");
+    return Task.CompletedTask;
+};
+connection.Closed += _ =>
+{
+    Console.WriteLine("[Lifecycle] Ket noi da dong.");
+    return Task.CompletedTask;
+};
 
 // ③ Mở kết nối: negotiate + chọn WebSocket
 await connection.StartAsync();
