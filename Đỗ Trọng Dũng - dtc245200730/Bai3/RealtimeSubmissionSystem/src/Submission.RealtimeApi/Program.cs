@@ -1,7 +1,9 @@
 // EduSubmit realtime – Submission.RealtimeApi (Bài 3: REST của Bài 2 + SignalR)
 // Chạy: dotnet run --project src/Submission.RealtimeApi --urls http://localhost:5000
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSignalR(); // trước builder.Build()
 var app = builder.Build();
 
 // Dữ liệu mẫu trong bộ nhớ (mất khi tắt API)
@@ -80,6 +82,9 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
     }
 });
 
+// Hub thời gian thực: máy khách nối vào đây để nhận trạng thái lượt nộp
+app.MapHub<SubmissionHub>("/hubs/submissions"); // trước app.Run()
+
 app.Run();
 
 // Hợp đồng dữ liệu
@@ -98,3 +103,21 @@ record SubmissionDto(
     DateTimeOffset UpdatedAt);
 
 record ApiError(string Code, string Message);
+
+// Hub mỏng: chỉ đưa kết nối vào nhóm của lượt nộp, KHÔNG tạo hay chấm bài
+sealed class SubmissionHub : Hub
+{
+    public async Task WatchSubmission(string submissionId)
+    {
+        var group = SubmissionGroups.ForSubmission(submissionId);
+        await Groups.AddToGroupAsync(Context.ConnectionId, group);
+        Console.WriteLine($"[Hub] {Context.ConnectionId[..8]} theo doi {group}");
+    }
+}
+
+// Một chỗ duy nhất sinh tên nhóm → hub và tác vụ nền không lệch tên
+static class SubmissionGroups
+{
+    public static string ForSubmission(Guid id) => ForSubmission(id.ToString());
+    public static string ForSubmission(string id) => $"submission:{id}";
+}

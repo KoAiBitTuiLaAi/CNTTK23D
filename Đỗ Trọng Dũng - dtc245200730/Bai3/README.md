@@ -332,3 +332,43 @@ HTTP/1.1 400 Bad Request
 ```
 
 Thấy: POST trả `201 Created`, body có `"status":"received"` và `"updatedAt"`. Thứ tự kiểm tra giữ như Bài 2: 404 (không có bài) → 400 CLOSED → 400 INVALID → 201.
+
+### Bước 3: hub mỏng `SubmissionHub` đưa kết nối vào nhóm `submission:{id}`
+
+![edusubmit-buoc3-negotiate](anh/edusubmit-buoc3-negotiate.png)
+
+```csharp
+builder.Services.AddSignalR();                              // trước builder.Build()
+app.MapHub<SubmissionHub>("/hubs/submissions");             // trước app.Run()
+
+sealed class SubmissionHub : Hub
+{
+    public async Task WatchSubmission(string submissionId)
+        => await Groups.AddToGroupAsync(Context.ConnectionId, SubmissionGroups.ForSubmission(submissionId));
+}
+
+static class SubmissionGroups
+{
+    public static string ForSubmission(Guid id) => ForSubmission(id.ToString());
+    public static string ForSubmission(string id) => $"submission:{id}";
+}
+```
+
+```text
+> curl.exe -X POST "http://localhost:5000/hubs/submissions/negotiate?negotiateVersion=1"
+{"negotiateVersion":1,"connectionId":"Y4ah2yp_gbnR62068wmIeQ","connectionToken":"-J5QI2lN8j_rEKaK4jRzGw",
+ "availableTransports":[{"transport":"WebSockets",...},{"transport":"ServerSentEvents",...},{"transport":"LongPolling",...}]}
+
+> curl.exe -i -X POST "http://localhost:5000/hub/submissions/negotiate?negotiateVersion=1"
+HTTP/1.1 404 Not Found
+```
+
+Thấy: negotiate ở `/hubs/submissions` trả `connectionId`; `/hub/submissions` trả 404.
+Giải thích: hub chỉ làm MỘT việc – máy khách gọi `WatchSubmission(id)` sau khi có id từ POST, hub thêm kết nối vào nhóm `submission:{id}`. Nghiệp vụ (tạo, chấm bài) nằm ở REST và tác vụ nền. `SubmissionGroups` là chỗ duy nhất sinh tên nhóm để hai phía không lệch tên.
+
+Vì sao nhóm theo lượt nộp thay vì `Clients.All` + máy khách tự lọc:
+
+1. **Riêng tư** – chỉ đúng sinh viên theo dõi lượt nộp đó nhận tin; máy khách khác không thấy dữ liệu của người khác.
+2. **Băng thông** – 100 SV, mỗi lượt đổi trạng thái 2 lần: gửi theo nhóm = 200 thông điệp; gửi tất cả = 100 × 100 × 2 = 20.000 thông điệp.
+
+Nhóm do MÁY CHỦ quản lý, máy khách không tự lọc.
