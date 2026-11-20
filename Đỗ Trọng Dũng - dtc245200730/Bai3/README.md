@@ -303,3 +303,32 @@ Build succeeded.
 ```
 
 Thấy: build 0 lỗi. `Submission.RealtimeApi` = REST Bài 2 + hub (template web, cổng 5000 như Bài 2); `Submission.RealtimeClient` = `HttpClient` + `HubConnection` (template console + gói SignalR Client). Cùng khuôn 9 lệnh như PingSignalR, chỉ khác tên.
+
+### Bước 2: dán REST của Bài 2, thêm `UpdatedAt` và khóa `submissionsLock`
+
+![edusubmit-buoc2-post](anh/edusubmit-buoc2-post.png)
+
+Giữ nguyên các endpoint Bài 2 (`GET /`, `GET /api/assignments`, `GET /api/assignments/{id}`, `POST /api/assignments/{id}/submissions`, `GET /api/submissions/{id}`, `ApiError`). Thay đổi:
+
+- `SubmissionDto` thêm `UpdatedAt` – thời điểm đổi trạng thái gần nhất.
+- Mọi đọc/ghi danh sách `submissions` đặt trong `lock (submissionsLock)` vì bước 4 sẽ có tác vụ nền sửa danh sách song song với request HTTP.
+
+`nop-bai.json` chứa `studentCode` và `repositoryUrl` như Bài 2.
+
+```text
+> curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" -d "@nop-bai.json"
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: /api/submissions/06216bf6-5b37-4578-9142-e07746b41edc
+
+{"id":"06216bf6-5b37-4578-9142-e07746b41edc","assignmentId":1,"studentCode":"SV001",
+ "repositoryUrl":"https://example.com/sv001/signalr","status":"received",
+ "receivedAt":"2026-11-20T01:30:32.7783915+00:00","updatedAt":"2026-11-20T01:30:32.7783915+00:00"}
+
+> curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" -d "{}"
+HTTP/1.1 400 Bad Request
+
+> curl.exe -X POST http://localhost:5000/api/assignments/999/submissions ...   → 404
+```
+
+Thấy: POST trả `201 Created`, body có `"status":"received"` và `"updatedAt"`. Thứ tự kiểm tra giữ như Bài 2: 404 (không có bài) → 400 CLOSED → 400 INVALID → 201.
