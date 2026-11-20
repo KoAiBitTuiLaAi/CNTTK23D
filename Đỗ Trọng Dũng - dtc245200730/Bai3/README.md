@@ -372,3 +372,39 @@ Vì sao nhóm theo lượt nộp thay vì `Clients.All` + máy khách tự lọc
 2. **Băng thông** – 100 SV, mỗi lượt đổi trạng thái 2 lần: gửi theo nhóm = 200 thông điệp; gửi tất cả = 100 × 100 × 2 = 20.000 thông điệp.
 
 Nhóm do MÁY CHỦ quản lý, máy khách không tự lọc.
+
+### Bước 4: `IHubContext` + mô phỏng chấm bài ở nền
+
+![edusubmit-buoc4-trangthai](anh/edusubmit-buoc4-trangthai.png)
+
+- Endpoint POST nhận thêm tham số `IHubContext<SubmissionHub> hubContext` (ASP.NET Core tự đưa vào qua DI), tạo lượt nộp `received` rồi gọi `_ = SimulateGradingAsync(...)` **không await** → trả 201 ngay.
+- `SimulateGradingAsync`: `Task.Delay(1s)` → `processing`, `Task.Delay(2s)` → `graded`.
+- `UpdateStatusAsync`: ① cập nhật danh sách trong `lock` (record bất biến nên dùng `with { Status, UpdatedAt }`) → ② tạo `SubmissionStatusMessage(Id, Status, UpdatedAt)` chỉ 3 trường → ③ `hub.Clients.Group("submission:{id}").SendAsync("SubmissionStatusChanged", msg)`. Lưu trước, đẩy sau: ai nhận tin rồi đọc REST đều thấy đúng.
+
+Kiểm tra chưa cần máy khách – REST đã thấy trạng thái đổi dần:
+
+```text
+> curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H "Content-Type: application/json" -d "@nop-bai.json"
+HTTP/1.1 201 Created
+Location: /api/submissions/9efc75da-7a5e-47aa-8cad-5b3d10897355
+{"id":"9efc75da-...","assignmentId":1,"studentCode":"SV001",...,"status":"received","updatedAt":"2026-11-20T01:31:35.5314836+00:00"}
+
+> curl.exe http://localhost:5000/api/submissions/9efc75da-7a5e-47aa-8cad-5b3d10897355     # ngay lập tức
+{...,"status":"received","updatedAt":"2026-11-20T01:31:35.5314836+00:00"}
+
+> curl.exe http://localhost:5000/api/submissions/9efc75da-7a5e-47aa-8cad-5b3d10897355     # sau ~1,5 giây
+{...,"status":"processing","updatedAt":"2026-11-20T01:31:36.5390438+00:00"}
+
+> curl.exe http://localhost:5000/api/submissions/9efc75da-7a5e-47aa-8cad-5b3d10897355     # sau ~4 giây
+{...,"status":"graded","updatedAt":"2026-11-20T01:31:38.5494168+00:00"}
+```
+
+Terminal 1 – máy chủ:
+
+```text
+[Push] submission:9efc75da-7a5e-47aa-8cad-5b3d10897355 -> processing
+[Push] submission:9efc75da-7a5e-47aa-8cad-5b3d10897355 -> graded
+```
+
+Thấy: ba lần GET đúng thứ tự `received → processing → graded`, `updatedAt` tăng dần (cách ~1 s rồi ~2 s).
+Giải thích: không truyền được đối tượng hub vào tác vụ nền vì hub chỉ sống trong MỘT lời gọi; ngoài hub phải dùng `IHubContext` (trong hub: `Clients`, ngoài hub: `hubContext.Clients`, cùng phạm vi All/Group…). REST luôn biết trạng thái đúng; SignalR chỉ giúp máy khách biết SỚM hơn mà không phải hỏi. Hệ thật sẽ thay `Task.Delay` bằng hàng đợi + worker (Bài 6), cách đẩy về giữ nguyên.
