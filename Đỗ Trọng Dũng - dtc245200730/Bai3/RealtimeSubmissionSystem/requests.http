@@ -1,0 +1,61 @@
+@host = http://localhost:5000
+@pingHost = http://localhost:5200
+
+### 1. Kiểm tra dịch vụ → 200
+GET {{host}}/
+
+### 2. Danh sách bài tập → 200
+GET {{host}}/api/assignments
+
+### 3. Chi tiết bài tập 1 → 200
+GET {{host}}/api/assignments/1
+
+### 4. Tạo lượt nộp → 201 + Location, status = received
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/signalr" }
+
+### 5. Đọc lại lượt nộp vừa tạo → 200 (bấm nhiều lần: received → processing → graded)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6. Thiếu studentCode, repositoryUrl → 400 INVALID_SUBMISSION
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "", "repositoryUrl": "" }
+
+### 7. Nộp vào bài tập không tồn tại → 404 ASSIGNMENT_NOT_FOUND
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/signalr" }
+
+### 8. Nộp vào bài tập đã đóng (bài 3) → 400 ASSIGNMENT_CLOSED
+POST {{host}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/signalr" }
+
+### 9. Lượt nộp không tồn tại (id rỗng) → 404 SUBMISSION_NOT_FOUND
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 10. Bắt tay SignalR → 200 + connectionId + availableTransports
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 11. Sai đường dẫn hub → 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 12. Bài tập 2: kho mã nguồn http:// → 201 (máy chủ sẽ chấm failed)
+# @name createFailed
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV002", "repositoryUrl": "http://example.com/sv002/signalr" }
+
+### 13. Bài tập 2: đọc lại sau ~3 giây → 200, status = failed
+GET {{host}}/api/submissions/{{createFailed.response.body.$.id}}
+
+### 14. Bắt tay hub PingSignalR (cần chạy Ping.Api cổng 5200) → 200
+POST {{pingHost}}/hubs/ping/negotiate?negotiateVersion=1

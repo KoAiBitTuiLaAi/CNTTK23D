@@ -9,6 +9,41 @@ Thư mục `Bai3` gồm hai solution:
 | `PingSignalR` | `Ping.Api`, `Ping.Client` | 5200 | Ví dụ cơ bản: hub `/hubs/ping`, Echo / Broadcast / Group / vòng đời kết nối |
 | `RealtimeSubmissionSystem` | `Submission.RealtimeApi`, `Submission.RealtimeClient` | 5000 | EduSubmit realtime: REST của Bài 2 + hub `/hubs/submissions` đẩy `processing`, `graded` |
 
+```text
+Bai3/
+├── README.md                     (nhật ký – file này)
+├── docs/bai3.md                  (nhật ký tóm tắt: commit theo bước, bảng thí nghiệm)
+├── anh/                          (ảnh chụp kết quả từng bước)
+├── PingSignalR/
+│   ├── PingSignalR.slnx
+│   └── src/Ping.Api, src/Ping.Client
+└── RealtimeSubmissionSystem/
+    ├── RealtimeSubmissionSystem.slnx
+    ├── requests.http             (14 ca: 200, 201, 400, 404, negotiate)
+    ├── kiem-tra-requests.ps1     (chạy lại các ca của requests.http bằng curl, in mã thật)
+    ├── nop-bai.json
+    └── src/Submission.RealtimeApi, src/Submission.RealtimeClient
+```
+
+### Cách chạy
+
+```powershell
+# PingSignalR – Terminal 1 máy chủ, Terminal 2/3 máy khách (Enter để thoát)
+cd PingSignalR
+dotnet run --project src/Ping.Api --urls http://localhost:5200
+dotnet run --project src/Ping.Client -- http://localhost:5200 An
+
+# EduSubmit realtime – Terminal 1 máy chủ, Terminal 2 máy khách (tự thoát sau khi nhận graded)
+cd RealtimeSubmissionSystem
+dotnet run --project src/Submission.RealtimeApi --urls http://localhost:5000
+dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV001
+dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV003 http://example.com/sv003   # bài tập 2
+dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 --hai-luot                       # bài tập 3
+.\kiem-tra-requests.ps1                                                                                     # chạy các ca requests.http
+```
+
+Máy chủ nhận cổng qua `--urls` (mặc định trong `launchSettings.json`: 5200 và 5000); máy khách nhận URL máy chủ qua tham số dòng lệnh đầu tiên.
+
 ---
 
 ## Phần 1 – PingSignalR
@@ -551,3 +586,124 @@ Trang thai doc lai bang REST: graded
 | 5 | Chờ 4 giây rồi mới `WatchSubmission` | Lỡ hết tin vì bài đã chấm xong trước khi vào nhóm | Đúng: không nhận tin nào, hết 10 giây chờ; REST đọc lại: `graded` | Vào nhóm muộn là lỡ tin (SignalR không lưu tin cũ). Thiết kế đúng = push để nhanh + REST để chắc |
 
 Bài học: thông điệp thời gian thực có thể bị lỡ (sai tên, vào nhóm muộn, đứt mạng), nên luôn chốt trạng thái bằng `GET /api/submissions/{id}`.
+
+### Bước 8: `requests.http` gom các ca REST và bước bắt tay của hub
+
+`RealtimeSubmissionSystem/requests.http` có 14 ca (đủ 9 ca của bài giảng + ca chi tiết bài tập, bài tập đã đóng, bài tập 2 và negotiate của PingSignalR). Để có bằng chứng chạy thật, `kiem-tra-requests.ps1` gửi lại đúng các ca đó bằng `curl.exe` và in mã trạng thái thực tế (ca 5 đọc lại 2 lần: ngay lập tức và sau 5 giây theo `Location`).
+
+![edusubmit-buoc8-requests](anh/edusubmit-buoc8-requests.png)
+
+| # | Ca | Mong đợi | Thực tế |
+|---|---|---|---|
+| 1 | `GET /` | 200 | 200 |
+| 2 | `GET /api/assignments` | 200 | 200 (3 bài tập) |
+| 3 | `GET /api/assignments/1` | 200 | 200 |
+| 4 | `POST /api/assignments/1/submissions` hợp lệ | 201 + Location, `received` | 201, `received`, có Location |
+| 5 | `GET /api/submissions/{id}` (ngay / sau 5 giây) | 200 | 200 `received` → 200 `graded` |
+| 6 | `POST` thiếu `studentCode`, `repositoryUrl` | 400 | 400 `INVALID_SUBMISSION` |
+| 7 | `POST /api/assignments/999/submissions` | 404 | 404 `ASSIGNMENT_NOT_FOUND` |
+| 8 | `POST` bài tập đã đóng (bài 3) | 400 | 400 `ASSIGNMENT_CLOSED` |
+| 9 | `GET /api/submissions/{id rỗng}` | 404 | 404 `SUBMISSION_NOT_FOUND` |
+| 10 | `POST /hubs/submissions/negotiate` | 200 + connectionId | 200 + connectionId |
+| 11 | `POST /hub/submissions/negotiate` (sai hub) | 404 | 404 |
+| 12 | `POST` kho `http://` (bài tập 2) | 201 | 201 |
+| 13 | `GET` lượt nộp `http://` sau ~5 giây | 200 `failed` | 200 `failed` |
+| 14 | `POST :5200/hubs/ping/negotiate` | 200 + connectionId | 200 + connectionId |
+
+Kết quả: **đạt 15/15 lần gọi**. Bảng này bao trùm cả 7 yêu cầu kiểm tra của thang điểm (GET danh sách 200; POST 201 + Location; POST thiếu dữ liệu 400; POST bài 999 404; negotiate `/hubs/submissions` 200; GET theo Location sau 5 giây 200 `graded`; negotiate `:5200/hubs/ping` 200).
+
+### Vận dụng: bài tập 2 và bài tập 3
+
+![edusubmit-buoc8-baitap](anh/edusubmit-buoc8-baitap.png)
+
+**Bài tập 2 – trạng thái `failed`.**
+
+- Máy chủ (`SimulateGradingAsync`): `repositoryUrl` không bắt đầu bằng `https://` thì trạng thái cuối là `failed` thay vì `graded`.
+- Máy khách: nhận `failed` thì in `!!! CANH BAO: ... cham LOI (failed)` màu đỏ; chuông cũng reo với `failed` (đều là trạng thái cuối) nên không phải chờ hết 10 giây.
+- Câu hỏi khung bị ảnh hưởng: **①** (sự kiện có thêm nhánh `processing → failed`) và **③** (giá trị `Status` trong thông điệp có thêm `failed`). Câu ② (nhóm) và ④ (đọc lại bằng REST) giữ nguyên.
+
+```text
+> dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV003 http://example.com/sv003
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: e1930c8c-cd4d-41aa-9494-4e89ece99406
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: e1930c8c-cd4d-41aa-9494-4e89ece99406 -> processing luc 08:55:33
+!!! CANH BAO: luot nop e1930c8c-cd4d-41aa-9494-4e89ece99406 cham LOI (failed) luc 08:55:35
+Trang thai doc lai bang REST: failed
+```
+
+**Bài tập 3 – theo dõi hai lượt nộp trên cùng một kết nối** (`--hai-luot`).
+
+- Tạo 2 lượt nộp (SV001 kho `https://`, SV002 kho `http://`), gọi `WatchSubmission` cho cả hai trên CÙNG một `HubConnection`.
+- Mỗi lượt nộp một `TaskCompletionSource<string>` trong `ConcurrentDictionary<Guid, ...>`; hàm `On` tra theo `SubmissionId` để reo đúng chuông. Chờ `Task.WhenAll` (tối đa 10 giây), rồi đọc lại REST từng lượt.
+
+```text
+> dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 --hai-luot
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao SV001: 47338e44 (received)
+Da tao SV002: 4aadff59 (received)
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 47338e44 -> processing luc 08:55:37
+Thong bao SignalR: 4aadff59 -> processing luc 08:55:37
+Thong bao SignalR: 47338e44 -> graded luc 08:55:39
+!!! CANH BAO: luot nop 4aadff59 cham LOI (failed) luc 08:55:39
+SV001: SignalR = graded, REST = graded
+SV002: SignalR = failed, REST = failed
+```
+
+Chứng minh không trộn lẫn: mỗi thông điệp mang `SubmissionId` riêng; trạng thái cuối nhận qua SignalR của từng lượt nộp khớp đúng trạng thái đọc lại bằng REST (`graded` ↔ `graded`, `failed` ↔ `failed`).
+
+**Bài tập 4 – chạy máy khách khi API tắt:** chính là TN2 ở bước 7: `HttpRequestException ... actively refused (localhost:5000)` ngay ở `StartAsync`. Lần nối đầu không tự thử lại; `WithAutomaticReconnect` chỉ cứu kết nối đã mở. Muốn chịu được API khởi động muộn thì phải tự viết vòng lặp thử lại quanh `StartAsync` (ví dụ thử lại sau 2, 5, 10 giây).
+
+---
+
+## Trả lời 3 câu hỏi đầu giờ
+
+1. **Máy chủ có thể chủ động báo cho máy khách mà không cần máy khách hỏi không?**
+   Có, nếu máy khách mở sẵn một kết nối lâu dài. Với HTTP thường chỉ máy khách mở lời; SignalR giữ một kết nối WebSocket (dự phòng SSE, Long Polling) để máy chủ gửi bất kỳ lúc nào bằng `Clients.Group(...).SendAsync(...)`; khi gửi từ bên ngoài hub (tác vụ chấm nền) thì dùng `IHubContext`. Ở bước 6, máy khách nhận `processing`, `graded` mà không gửi thêm yêu cầu nào.
+
+2. **Đã có REST rồi, vì sao cần thêm SignalR? Hai thứ chia việc thế nào?**
+   REST tạo và đọc tài nguyên với mã trạng thái rõ ràng (POST 201/400/404, GET 200/404) và là nguồn sự thật. SignalR chỉ đẩy các THAY ĐỔI phát sinh sau yêu cầu ban đầu tới đúng nhóm `submission:{id}`, thay cho polling tốn kém (100 SV hỏi 2 giây/lần = 3.000 yêu cầu/phút, chỉ ~7% có ích; push = 200 thông báo, 100% có ích). SignalR không thay thế REST – tạo lượt nộp vẫn bằng POST.
+
+3. **Nếu đứt mạng đúng lúc máy chủ báo "đã chấm xong" thì sao?**
+   Tin đó mất – SignalR không lưu tin để gửi lại. `WithAutomaticReconnect` nối lại với ConnectionId MỚI nên nhóm cũ cũng mất (bước 6 PingSignalR). Máy khách phải gọi lại `WatchSubmission(id)` trong `Reconnected` và gọi `GET /api/submissions/{id}` để lấy trạng thái cuối. Thí nghiệm TN4, TN5 cho thấy dù lỡ tin, REST vẫn đọc ra `graded`. **Push để nhanh, REST để chắc.**
+
+## Câu hỏi ôn tập (giáo trình chương 3)
+
+| Câu hỏi | Trả lời ngắn |
+|---|---|
+| Polling khác push ở số yêu cầu và độ trễ? | Polling: máy khách hỏi theo chu kỳ, phần lớn yêu cầu thừa, trễ tới 1 chu kỳ. Push: máy chủ gửi đúng lúc có sự kiện, không thừa, gần như tức thì |
+| Phân biệt 3 MEP | Yêu cầu–phản hồi: máy khách khởi tạo, 1 yêu cầu ↔ 1 phản hồi. Đẩy: máy chủ khởi tạo khi có sự kiện, từng thông điệp lẻ. Truyền luồng: một/hai phía, chuỗi nhiều thông điệp liên tục |
+| WebSocket, SignalR: giao thức hay thư viện? | WebSocket là GIAO THỨC (kênh hai chiều sau bắt tay HTTP `101 Switching Protocols`). SignalR là THƯ VIỆN cấp cao của ASP.NET Core: hub, nhóm, kết nối lại, chọn truyền tải |
+| SignalR có những truyền tải dự phòng nào? | WebSockets (ưu tiên 1) → Server-Sent Events (2) → Long Polling (3); thấy trong `availableTransports` của negotiate |
+| Vì sao nhóm `submission:{id}` thay vì gửi tất cả? | Riêng tư (không lộ trạng thái bài người khác) và băng thông (200 thay vì 20.000 thông điệp) |
+| `IHubContext` cho phép làm gì? | Gửi thông điệp từ BÊN NGOÀI hub (endpoint, tác vụ nền) với cùng phạm vi `All/Group/Client` |
+| `On<T>` dùng để làm gì? Bỏ đi thì sao? | Đăng ký hàm xử lý theo TÊN thông điệp và tự chuyển JSON thành `T`. Bỏ (hoặc sai tên) thì thông điệp đến nhưng không ai xử lý – im lặng, không lỗi (TN4) |
+| REST làm gì, SignalR làm gì? Vì sao không dùng SignalR để tạo lượt nộp? | REST tạo/đọc tài nguyên, có mã trạng thái, URI, Location, dễ test bằng curl/requests.http, là nguồn sự thật. SignalR chỉ báo thay đổi; tin có thể lỡ nên không dùng làm kênh tạo dữ liệu |
+| `WithAutomaticReconnect` có tác dụng gì? | Tự nối lại kết nối đã mở khi rớt, thử sau 0, 2, 10, 30 giây; nối lại có ConnectionId mới; không áp dụng cho lần `StartAsync` đầu |
+| Mất kết nối đúng lúc báo graded thì làm gì? | Trong `Reconnected` gọi lại `WatchSubmission(id)` và `GET /api/submissions/{id}` để chốt trạng thái |
+
+**Thảo luận.**
+
+- *Hàng trăm SV cùng theo dõi:* nhóm theo id tiết kiệm hơn hẳn – mỗi thay đổi chỉ gửi tới đúng kết nối đang theo dõi thay vì N kết nối rồi tự lọc, và không lộ dữ liệu.
+- *Hai tình huống polling hợp lý hơn SignalR:* dữ liệu ít đổi và chấp nhận trễ vài chục giây (bảng điểm cập nhật mỗi giờ, trạng thái build đêm); hoặc mạng/proxy chặn kết nối lâu dài, máy khách chỉ cần kiểm tra một lần (script, cron).
+- *Chạy nhiều bản sao API (scale-out):* nhóm nằm trong bộ nhớ từng máy chủ nên tác vụ chấm ở bản A gửi `Group(...)` thì máy khách đang nối với bản B không nhận được. Sửa: dùng backplane chung (Redis backplane hoặc Azure SignalR Service) và sticky session cho negotiate/transport.
+
+## Danh sách kiểm tra trước khi mở PR
+
+![buoc8-kiemtra-nop](anh/buoc8-kiemtra-nop.png)
+
+| Yêu cầu | Đạt? |
+|---|---|
+| `dotnet build` cả 2 solution: 0 Error(s) (4 project) | ☑ |
+| Không commit `bin/`, `obj/` (mỗi solution có `.gitignore`; `git ls-files` không có bin/obj) | ☑ |
+| `requests.http` đủ 9 ca trở lên (14 ca, có 200, 201, 400, 404, negotiate) | ☑ |
+| README: kết quả máy khách 8 dòng (bước 6) | ☑ |
+| README: 5 thí nghiệm (dự đoán + kết quả thật + giải thích) – bước 7 | ☑ |
+| README: trả lời 3 câu hỏi đầu giờ | ☑ |
+| Mỗi bước ≥ 1 commit, mỗi bước có ảnh trong `anh/` | ☑ |
+| Máy khách EduSubmit tự thoát sau khi nhận graded; cổng cố định 5000 và 5200 qua `--urls` | ☑ |
+| PR tiêu đề `Bai3 - dtc245200730 - Đỗ Trọng Dũng`, chỉ sửa thư mục của mình | khi mở PR |
