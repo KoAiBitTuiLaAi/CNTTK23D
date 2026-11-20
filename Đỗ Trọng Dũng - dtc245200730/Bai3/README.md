@@ -120,3 +120,57 @@ HubException: Method does not exist.
 ```
 
 Sai tên chiều lên (máy khách → hub) báo lỗi ngay, chương trình dừng nên dễ phát hiện. Sai tên chiều xuống (`On("EchoRespone")`) thì im lặng – xem thí nghiệm 3 ở bước 7.
+
+### Bước 5: phát rộng (`Clients.All`) và nhóm (`Clients.Group`)
+
+![buoc5-nhom](anh/buoc5-nhom.png)
+
+Hub có thêm `Broadcast`, `JoinGroup`, `SendToGroup`; máy khách thêm `On("BroadcastMessage")`, `On("GroupMessage")` (đăng ký TRƯỚC `StartAsync`) và 3 lời gọi sau `Echo`. Chạy 3 terminal: máy chủ → An → Bình.
+
+Terminal 2 – An (chạy trước):
+
+```text
+> dotnet run --project src/Ping.Client -- http://localhost:5200 An
+An da ket noi den PingApi. ConnectionId: 3K5dbW4P
+[Echo] Echo: Xin chao SignalR tu An
+[Group] 3K5dbW4P da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+[Group] 4r41eqv1 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+[Broadcast] Xin chao tat ca tu Binh
+```
+
+Terminal 3 – Bình (chạy sau):
+
+```text
+> dotnet run --project src/Ping.Client -- http://localhost:5200 Binh
+Binh da ket noi den PingApi. ConnectionId: 4r41eqv1
+[Echo] Echo: Xin chao SignalR tu Binh
+[Group] 4r41eqv1 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu Binh
+```
+
+Thấy: cửa sổ An có `[Broadcast] Xin chao tat ca tu Binh` và `[Group] Thong bao nhom tu Binh` nhưng KHÔNG có `[Echo] ... tu Binh`. Bình không thấy tin An gửi trước khi Bình vào.
+Giải thích:
+
+| Phạm vi | Ai nhận | Trong ví dụ |
+|---|---|---|
+| `Clients.Caller` | chỉ kết nối vừa gọi hub | `Echo` → chỉ người gửi thấy `[Echo]` |
+| `Clients.All` | mọi kết nối đang mở, kể cả người gửi | `Broadcast` → An và Bình cùng thấy |
+| `Clients.Group(tên)` | các kết nối đã ở trong nhóm | `JoinGroup` / `SendToGroup` trong `lop-hoc-01` |
+
+`Context.ConnectionId` là mã của kết nối đang gọi hub, đổi mỗi lần nối. `Groups.AddToGroupAsync` thêm kết nối vào nhóm, nhóm tự tạo khi cần. SignalR không lưu tin cũ nên Bình vào sau không nhận lại tin của An.
+
+Thử thách 3 máy khách (An, Bình trong nhóm `lop-hoc-01`, Chi không ở nhóm nào):
+
+| Lời gọi | An | Bình | Chi | Phạm vi |
+|---|---|---|---|---|
+| An gọi `Echo("hi")` | nhận | không | không | `Clients.Caller` |
+| Chi gọi `SendToGroup("lop-hoc-01", "x")` | nhận | nhận | không | `Clients.Group` |
+| Bình gọi `Broadcast("y")` | nhận | nhận | nhận | `Clients.All` |
+
+Chi gửi được vào nhóm nhưng chính Chi không nhận vì không phải thành viên – hub ví dụ không kiểm tra quyền.

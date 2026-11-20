@@ -23,4 +23,20 @@ sealed class PingHub : Hub
     {
         await Clients.Caller.SendAsync("EchoResponse", $"Echo: {message}");
     }
+
+    // Phát rộng cho MỌI kết nối đang mở (kể cả người gửi)
+    public async Task Broadcast(string message)
+        => await Clients.All.SendAsync("BroadcastMessage", message);
+
+    // Thêm kết nối hiện tại vào nhóm, báo cho cả nhóm
+    public async Task JoinGroup(string groupName)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        await Clients.Group(groupName).SendAsync("GroupMessage",
+            $"{Context.ConnectionId[..8]} da tham gia nhom {groupName}");
+    }
+
+    // Gửi cho các thành viên của nhóm
+    public async Task SendToGroup(string groupName, string message)
+        => await Clients.Group(groupName).SendAsync("GroupMessage", message);
 }
