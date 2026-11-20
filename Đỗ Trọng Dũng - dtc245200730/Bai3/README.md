@@ -433,3 +433,37 @@ Da ket noi SignalR.
 ```
 
 Giải thích: một URL gốc `http://localhost:5000` dùng cho cả REST (`BaseAddress`) và hub (`/hubs/submissions`). `On<SubmissionStatusMessage>` để SignalR tự chuyển JSON thành record – record khai báo giống máy chủ ở cuối tệp (`AssignmentDto`, `CreateSubmissionRequest`, `SubmissionDto`, `SubmissionStatusMessage`, `ApiError`). `TaskCompletionSource` là một Task "bấm tay": hoàn tất khi gọi `TrySetResult`, dùng để chờ một sự kiện.
+
+### Bước 6: tạo lượt nộp bằng REST, theo dõi bằng SignalR, chốt lại bằng REST
+
+![edusubmit-buoc6-client](anh/edusubmit-buoc6-client.png)
+
+Trình tự trong máy khách: ① `GET /api/assignments` → ② `POST .../submissions` (kiểm tra 201 trước khi đọc body, lỗi thì in `ApiError`) → ③ `InvokeAsync("WatchSubmission", created.Id)` → ④ `Task.WhenAny(chuông graded, Task.Delay(10s))` → ⑤ `GET /api/submissions/{id}`.
+
+Terminal 2 – máy khách (kết quả máy khách 8 dòng):
+
+```text
+> dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV001
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: bb79ce4e-315c-4ac1-8062-e2d4661d0e86
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: bb79ce4e-315c-4ac1-8062-e2d4661d0e86 -> processing luc 08:32:43
+Thong bao SignalR: bb79ce4e-315c-4ac1-8062-e2d4661d0e86 -> graded luc 08:32:45
+Trang thai doc lai bang REST: graded
+```
+
+Terminal 1 – máy chủ:
+
+```text
+Now listening on: http://localhost:5000
+[Hub] GXrT5806 theo doi submission:bb79ce4e-315c-4ac1-8062-e2d4661d0e86
+[Push] submission:bb79ce4e-315c-4ac1-8062-e2d4661d0e86 -> processing
+[Push] submission:bb79ce4e-315c-4ac1-8062-e2d4661d0e86 -> graded
+```
+
+Thấy: 2 dòng `Thong bao SignalR` cách nhau 2 giây – hai cập nhật đến từ máy chủ mà máy khách không hề hỏi; máy khách tự thoát (mã thoát 0) ngay sau khi đọc lại `graded`, tổng ~4 giây.
+Giải thích: dòng "Chon bai tap / Da tao luot nop / Trang thai REST ban dau" là REST; hai dòng "Thong bao SignalR" là push qua nhóm `submission:{id}`; dòng cuối quay về REST vì **REST là nguồn sự thật** – tin đẩy có thể lỡ, trạng thái cuối luôn đọc lại bằng GET.
+
+Trật tự đúng: **nghe (`On`) → nối (`StartAsync`) → tạo (`POST`) → theo dõi (`Watch(id)`) → đọc lại (`GET`)**. Không nhận được thông báo thì kiểm tra lần lượt: 1. cổng/URL, 2. đường dẫn hub khớp `MapHub`, 3. `WatchSubmission` gọi SAU POST với đúng `created.Id`, 4. tên `"SubmissionStatusChanged"` giống nhau ở `SendAsync` và `On`.

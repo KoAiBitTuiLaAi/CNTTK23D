@@ -28,6 +28,47 @@ connection.On<SubmissionStatusMessage>("SubmissionStatusChanged", m =>
 await connection.StartAsync();
 Console.WriteLine("Da ket noi SignalR.");
 
+// ① REST: lấy danh sách bài tập, chọn bài đầu tiên còn mở
+var assignments = await http.GetFromJsonAsync<List<AssignmentDto>>("/api/assignments");
+var selected = assignments?.FirstOrDefault(a => a.IsOpen);
+if (selected is null)
+{
+    Console.WriteLine("Khong co bai tap nao dang mo.");
+    Environment.ExitCode = 1;
+    return;
+}
+Console.WriteLine($"Chon bai tap: {selected.Id} - {selected.Title}");
+
+// ② REST: tạo lượt nộp – kiểm tra mã 201 TRƯỚC khi đọc body
+var createResponse = await http.PostAsJsonAsync(
+    $"/api/assignments/{selected.Id}/submissions",
+    new CreateSubmissionRequest(studentCode, $"https://example.com/{studentCode}/signalr"));
+
+if (createResponse.StatusCode != HttpStatusCode.Created)
+{
+    var error = await createResponse.Content.ReadFromJsonAsync<ApiError>();
+    Console.WriteLine($"Loi {(int)createResponse.StatusCode}: {error?.Code} - {error?.Message}");
+    Environment.ExitCode = 1;
+    return;
+}
+
+var created = await createResponse.Content.ReadFromJsonAsync<SubmissionDto>();
+Console.WriteLine($"Da tao luot nop: {created!.Id}");
+Console.WriteLine($"Trang thai REST ban dau: {created.Status}");
+
+// ③ SignalR: vào nhóm submission:{id} – chỉ gọi được khi đã có id từ POST
+await connection.InvokeAsync("WatchSubmission", created.Id.ToString());
+Console.WriteLine("Dang cho thong bao trang thai tu may chu...");
+
+// ④ Chờ cái nào xong trước: chuông graded hay đồng hồ 10 giây
+var completed = await Task.WhenAny(gradedNotification.Task, Task.Delay(TimeSpan.FromSeconds(10)));
+if (completed != gradedNotification.Task)
+    Console.WriteLine("Qua thoi gian cho thong bao graded.");
+
+// ⑤ REST: đọc lại – trạng thái cuối luôn lấy từ nguồn sự thật
+var latest = await http.GetFromJsonAsync<SubmissionDto>($"/api/submissions/{created.Id}");
+Console.WriteLine($"Trang thai doc lai bang REST: {latest?.Status}");
+
 // Hợp đồng dữ liệu – khai báo giống máy chủ
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 
